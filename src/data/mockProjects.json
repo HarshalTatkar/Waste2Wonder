@@ -1,0 +1,313 @@
+[
+  {
+    "id": "proj-1",
+    "title": "Rustic Denim Tote Bag from Torn Jeans",
+    "description": "Transform an unwearable pair of torn jeans into a heavy-duty, fashionable daily tote bag with lined pockets.",
+    "source": "in_app",
+    "material": "Fabric",
+    "difficulty": "Medium",
+    "timeRequired": "1.5 hours",
+    "estimatedCost": "$2.50",
+    "materialsNeeded": [
+      "1 pair of old/torn denim jeans",
+      "Fabric scissors & sewing thread",
+      "1/2 yard cotton fabric for inner lining",
+      "Sewing machine or needle",
+      "Pins & tailor's chalk"
+    ],
+    "precautions": [
+      "Use heavy-duty denim needle (size 16 or 18) to avoid snapping on thick seams.",
+      "Wear eye protection when cutting thick zipper teeth."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Cut the denim legs",
+        "instructions": "Lay jeans flat. Cut horizontally across both legs right below the crotch line. Keep the upper part for the main bag body.",
+        "image": "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=800&q=80",
+        "tip": "Save the lower leg sleeves for shoulder straps!"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Construct the sturdy bottom seam",
+        "instructions": "Turn the upper body inside out. Pin the bottom opening together straight across, and double stitch with heavy polyester thread.",
+        "image": "https://images.unsplash.com/photo-1528458876885-5b6eac7c7b2c?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Craft and attach the handles",
+        "instructions": "Cut two 2-inch wide strips from the saved denim legs, fold raw edges inward, press with an iron, stitch down both sides, and securely sew to the waistband.",
+        "image": "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80"
+      }
+    ],
+    "coverImage": "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80",
+    "author": {
+      "id": "user-2",
+      "name": "Maya Lin",
+      "username": "upcycle_maya",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+    },
+    "likes": 342,
+    "commentsCount": 48,
+    "views": 2180,
+    "implementationsCount": 57,
+    "createdAt": "2026-09-15T10:00:00Z",
+    "tags": ["Fabric", "Denim", "Fashion", "Bag"]
+  },
+  {
+    "id": "proj-2",
+    "title": "Self-Watering Herb Planters from PET Bottles",
+    "description": "Never overwater or underwater your basil again. Turn 2-liter clear plastic soda bottles into sub-irrigated windowsill planters.",
+    "source": "youtube",
+    "youtubeUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "youtubeVideoId": "dQw4w9WgXcQ",
+    "material": "Plastic",
+    "difficulty": "Easy",
+    "timeRequired": "25 mins",
+    "estimatedCost": "$0.00 (Recycled)",
+    "materialsNeeded": [
+      "2-liter plastic soda bottle (cleaned)",
+      "Thick cotton yarn or strip of cotton cloth (wick)",
+      "Potting soil & herb seeds or sapling",
+      "Box cutter or craft knife",
+      "Water"
+    ],
+    "precautions": [
+      "Always cut plastic away from your body with the craft knife.",
+      "Lightly sand or tape the sharp cut edge of the bottle to prevent finger scrapes."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Cut the bottle in half",
+        "instructions": "Measure about 4 inches down from the neck and slice evenly around the circumference into two halves.",
+        "image": "https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?auto=format&fit=crop&w=800&q=80",
+        "tip": "Generated from video: Ensure the bottom half is slightly deeper so it holds sufficient water."
+      },
+      {
+        "stepNumber": 2,
+        "title": "Insert the cotton wick",
+        "instructions": "Thread the cotton string through the bottle cap hole (or inverted neck), leaving half hanging down and half coiling inside the upper cone.",
+        "image": "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Fill with soil & invert",
+        "instructions": "Invert the top funnel into the water-filled reservoir base. Add moist potting mix, plant your herbs, and watch the capillary action draw moisture automatically.",
+        "image": "https://images.unsplash.com/photo-1459156212016-c812468e2115?auto=format&fit=crop&w=800&q=80"
+      }
+    ],
+    "coverImage": "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=800&q=80",
+    "likes": 512,
+    "commentsCount": 63,
+    "views": 4900,
+    "implementationsCount": 119,
+    "createdAt": "2026-09-18T14:30:00Z",
+    "tags": ["Plastic", "Gardening", "ZeroWaste", "Kitchen"]
+  },
+  {
+    "id": "proj-3",
+    "title": "Minimalist Ambient Lamp from Broken Ceramic Mug",
+    "description": "AI-generated synthesis: When a favorite ceramic mug fractures or loses a handle, turn the shattered stoneware into a warm LED mood light using kintsugi resin.",
+    "source": "ai_generated",
+    "material": "Glass",
+    "difficulty": "Hard",
+    "timeRequired": "2 hours",
+    "estimatedCost": "$6.00",
+    "materialsNeeded": [
+      "Broken ceramic or glass shards",
+      "Epoxy resin with bronze mica powder",
+      "USB 5V warm fairy LED strip (3000K)",
+      "Protective silicone gloves & tweezers",
+      "Wooden display base"
+    ],
+    "precautions": [
+      "Work in a well-ventilated space when mixing epoxy resin.",
+      "Handle ceramic shards with tweezers or cut-resistant gloves."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Safety inspection and mock layout",
+        "instructions": "Arrange the ceramic pieces on butcher paper to test the light transmission through intentional fracture gaps.",
+        "image": "https://images.unsplash.com/photo-1616401784845-180882ba9ba8?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Mix gold/bronze tinted structural epoxy",
+        "instructions": "Blend equal parts resin and hardener with mica pigment. Join large structural fragments leaving geometric 3mm translucent fissures.",
+        "image": "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Thread interior warm LED core",
+        "instructions": "Insert the micro LED strand into the hollow cavity, anchor the USB wire through the rear notch, and seal the base with cork feet.",
+        "image": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80"
+      }
+    ],
+    "coverImage": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80",
+    "finalOutputImage": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80",
+    "inProgressImages": [
+      "https://images.unsplash.com/photo-1616401784845-180882ba9ba8?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80"
+    ],
+    "likes": 289,
+    "commentsCount": 31,
+    "views": 1840,
+    "implementationsCount": 42,
+    "createdAt": "2026-09-20T08:15:00Z",
+    "tags": ["Glass", "Ceramic", "Lighting", "Aesthetic"]
+  },
+  {
+    "id": "proj-4",
+    "title": "Corrugated Cardboard Desktop Organizer & Tablet Stand",
+    "description": "Don't discard those Amazon shipping boxes! Construct a multi-tiered interlocking desk caddy with custom pen wells and charging cable channels.",
+    "source": "in_app",
+    "material": "Paper-Cardboard",
+    "difficulty": "Easy",
+    "timeRequired": "45 mins",
+    "estimatedCost": "$1.00",
+    "materialsNeeded": [
+      "2-3 corrugated shipping box flaps",
+      "Metal ruler and utility knife",
+      "PVA glue or non-toxic wood glue",
+      "Acrylic paint (sage green & terracotta accents)"
+    ],
+    "precautions": [
+      "Always cut against a non-slip metal straight edge on a cutting mat.",
+      "Keep blade retracted when not actively scoring."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Score interlocking notches",
+        "instructions": "Measure 6 matching partition pieces with 3mm slots matching the cardboard thickness for slot-together friction fit.",
+        "image": "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Layer and reinforce load points",
+        "instructions": "Laminate 3 layers together for the back tablet cradle to prevent bending under device weight.",
+        "image": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Neubrutalist edge paint & assembly",
+        "instructions": "Assemble the caddy and paint the exposed corrugated fluting in vivid contrast colors.",
+        "image": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80"
+      }
+    ],
+    "coverImage": "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?auto=format&fit=crop&w=800&q=80",
+    "author": {
+      "id": "user-3",
+      "name": "Arjun Patel",
+      "username": "cardboard_crafter",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80"
+    },
+    "likes": 420,
+    "commentsCount": 39,
+    "views": 3310,
+    "implementationsCount": 84,
+    "createdAt": "2026-09-10T11:20:00Z",
+    "tags": ["Paper-Cardboard", "Office", "Minimalist", "Storage"]
+  },
+  {
+    "id": "proj-5",
+    "title": "Cyberpunk Circuit Board Coasters & Key fobs",
+    "description": "Convert discarded dead motherboard and GPU PCB cards into sealed resin drink coasters and geometric keychain fobs.",
+    "source": "youtube",
+    "youtubeUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "youtubeVideoId": "dQw4w9WgXcQ",
+    "material": "E-waste",
+    "difficulty": "Medium",
+    "timeRequired": "1 hour",
+    "estimatedCost": "$4.00",
+    "materialsNeeded": [
+      "Dead computer motherboard or circuit cards",
+      "Rotary tool / Dremel with cutting disc",
+      "Clear non-yellowing epoxy casting resin",
+      "Sandpaper (200 to 1200 grit)",
+      "Rubber bumper feet"
+    ],
+    "precautions": [
+      "Always wear an N95 dust mask when cutting fiberglass circuit boards to prevent inhaling dust.",
+      "Wear safety glasses."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Cut 3.5-inch square PCB tiles",
+        "instructions": "Carefully trace and cut squares from sections with high trace density and golden contact fingers.",
+        "image": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
+        "tip": "Generated from video: Desolder any tall capacitors first so the coaster sits flush."
+      },
+      {
+        "stepNumber": 2,
+        "title": "Wet sand edges and coat in resin",
+        "instructions": "Round the 4 corners, wet sand edges smooth, then pour a doming clear resin top coat.",
+        "image": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80"
+      }
+    ],
+    "coverImage": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
+    "likes": 670,
+    "commentsCount": 92,
+    "views": 6200,
+    "implementationsCount": 140,
+    "createdAt": "2026-09-08T16:00:00Z",
+    "tags": ["E-waste", "Tech", "Coasters", "Gifts"]
+  },
+  {
+    "id": "proj-6",
+    "title": "Embossed Tin Lanterns from Canned Food Containers",
+    "description": "Punch intricate celestial and mandala pinprick constellations into rinsed aluminum cans to cast mesmerizing candlelight patterns.",
+    "source": "in_app",
+    "material": "Metal",
+    "difficulty": "Easy",
+    "timeRequired": "30 mins",
+    "estimatedCost": "$0.50",
+    "materialsNeeded": [
+      "Cleaned steel soup/bean tin cans",
+      "Nails of various diameters & hammer",
+      "Water & freezer (to prevent can denting)",
+      "Tea light candles or fairy lights"
+    ],
+    "precautions": [
+      "Freeze water solid inside the can before punching holes so the thin metal doesn't collapse inward!",
+      "File any sharp interior edges around the rim."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Fill with water and freeze",
+        "instructions": "Fill the clean tin can with water up to 1/2 inch from the brim and leave in freezer overnight.",
+        "image": "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Hammer punch mandala dots",
+        "instructions": "Tape your stencil pattern onto the frozen can and gently hammer nail tips through the tin along the lines.",
+        "image": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Melt ice and insert candle",
+        "instructions": "Rinse under warm water to melt the ice block, dry thoroughly to prevent rust, and insert an LED tea light.",
+        "image": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80"
+      }
+    ],
+    "coverImage": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80",
+    "author": {
+      "id": "user-4",
+      "name": "Kavita Reddy",
+      "username": "kavita_eco",
+      "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80"
+    },
+    "likes": 395,
+    "commentsCount": 42,
+    "views": 2980,
+    "implementationsCount": 68,
+    "createdAt": "2026-09-12T13:45:00Z",
+    "tags": ["Metal", "Lighting", "Decor", "Mandala"]
+  }
+]

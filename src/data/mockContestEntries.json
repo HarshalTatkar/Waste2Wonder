@@ -1,0 +1,86 @@
+[
+  {
+    "id": "contest-1",
+    "postId": "post-1",
+    "title": "Industrial Hanging Bookshelf from Broken Skateboard",
+    "description": "7-ply Canadian maple repurposed into dual-tiered suspended shelf with knotted raw rope.",
+    "creator": {
+      "id": "user-2",
+      "name": "Maya Lin",
+      "username": "upcycle_maya",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+    },
+    "beforeImage": "https://images.unsplash.com/photo-1520045892732-304bc3ac5d8e?auto=format&fit=crop&w=800&q=80",
+    "afterImage": "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80",
+    "materialType": "Wood / Skateboard",
+    "likes": 284,
+    "commentsCount": 18,
+    "views": 1820,
+    "weekNumber": 38,
+    "submissionDate": "2026-09-22T09:30:00Z",
+    "rank": 3
+  },
+  {
+    "id": "contest-2",
+    "postId": "post-2",
+    "title": "Stained Glass Style Sun-catcher from Waste Plastic",
+    "description": "Floral sun prism made with curled heat-formed soda bottles and copper wire wrapping.",
+    "creator": {
+      "id": "user-4",
+      "name": "Kavita Reddy",
+      "username": "kavita_eco",
+      "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80"
+    },
+    "beforeImage": "https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?auto=format&fit=crop&w=800&q=80",
+    "afterImage": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80",
+    "materialType": "Plastic",
+    "likes": 412,
+    "commentsCount": 27,
+    "views": 3100,
+    "weekNumber": 38,
+    "submissionDate": "2026-09-24T14:15:00Z",
+    "rank": 1
+  },
+  {
+    "id": "contest-3",
+    "postId": "post-3",
+    "title": "Geometric 3D Wall Relief from Shipping Boxes",
+    "description": "Layered isometric hexagonal sculpture using recycled flute cardboard and terracotta accents.",
+    "creator": {
+      "id": "user-3",
+      "name": "Arjun Patel",
+      "username": "cardboard_crafter",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80"
+    },
+    "beforeImage": "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?auto=format&fit=crop&w=800&q=80",
+    "afterImage": "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80",
+    "materialType": "Paper-Cardboard",
+    "likes": 360,
+    "commentsCount": 21,
+    "views": 2540,
+    "weekNumber": 38,
+    "submissionDate": "2026-09-25T11:00:00Z",
+    "rank": 2
+  },
+  {
+    "id": "contest-4",
+    "postId": "proj-1",
+    "title": "Rugged Denim Tote with Integrated Utility Pockets",
+    "description": "Reinforced daily carrier born from frayed work denim jeans, lined with organic cotton muslin.",
+    "creator": {
+      "id": "user-2",
+      "name": "Maya Lin",
+      "username": "upcycle_maya",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+    },
+    "beforeImage": "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=800&q=80",
+    "afterImage": "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80",
+    "materialType": "Fabric",
+    "likes": 298,
+    "commentsCount": 19,
+    "views": 1950,
+    "weekNumber": 38,
+    "submissionDate": "2026-09-21T08:00:00Z",
+    "rank": 4
+  }
+]

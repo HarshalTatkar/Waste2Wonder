@@ -1,0 +1,107 @@
+{
+  "id": "current-user",
+  "name": "Alex Rivera",
+  "username": "eco_crafter_alex",
+  "email": "alex.rivera@waste2wonder.org",
+  "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80",
+  "bio": "Transforming urban detritus into functional art and everyday essentials. Neubrutalism fan & Zero-waste advocate 🌿✨",
+  "city": "Seattle, WA",
+  "wasteTypes": ["Plastic", "Paper-Cardboard", "Fabric", "Glass"],
+  "mainGoal": "Learn upcycling",
+  "followersCount": 428,
+  "followingCount": 182,
+  "stats": {
+    "totalLikes": 1240,
+    "totalImplementations": 187,
+    "totalViews": 9450,
+    "totalPosts": 6
+  },
+  "environmentalImpact": {
+    "materialsReusedKg": 42.5,
+    "wastePreventedItems": 158,
+    "carbonSavedKg": 68.2,
+    "treesEquivalent": 3.4
+  },
+  "implementedWork": [
+    {
+      "id": "imp-1",
+      "originalReferenceTitle": "Self-Watering Herb Planters from PET Bottles",
+      "originalReferenceSource": "youtube",
+      "originalReferenceId": "proj-2",
+      "implementedCraftTitle": "My Basil & Mint Kitchen Windowsill Planters",
+      "uploadedResultPhoto": "https://images.unsplash.com/photo-1459156212016-c812468e2115?auto=format&fit=crop&w=800&q=80",
+      "date": "2026-09-20",
+      "feedbackNote": "Worked like a charm! Sub-irrigation wick keeps the basil moist even through sunny afternoons."
+    },
+    {
+      "id": "imp-2",
+      "originalReferenceTitle": "Rustic Denim Tote Bag from Torn Jeans",
+      "originalReferenceSource": "in_app",
+      "originalReferenceId": "proj-1",
+      "implementedCraftTitle": "Heavy-Duty Farmer's Market Carryall",
+      "uploadedResultPhoto": "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80",
+      "date": "2026-09-17",
+      "creatorName": "Maya Lin",
+      "feedbackNote": "Used Maya's waistband handle method. Incredibly durable!"
+    },
+    {
+      "id": "imp-3",
+      "originalReferenceTitle": "Minimalist Ambient Lamp from Broken Ceramic Mug",
+      "originalReferenceSource": "ai_generated",
+      "originalReferenceId": "proj-3",
+      "implementedCraftTitle": "Bedside Kintsugi Amber Nightlight",
+      "uploadedResultPhoto": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80",
+      "date": "2026-09-23",
+      "feedbackNote": "AI instructions on resin mica powder ratio were pinpoint accurate."
+    }
+  ],
+  "achievements": [
+    {
+      "id": "ach-1",
+      "title": "Zero Waste Pioneer",
+      "icon": "🌱",
+      "description": "Completed first 5 verified upcycling builds",
+      "unlockedAt": "Aug 2026"
+    },
+    {
+      "id": "ach-2",
+      "title": "Master Re-purposer",
+      "icon": "⚡",
+      "description": "Inspired 50+ community implementations of your builds",
+      "unlockedAt": "Sep 2026"
+    },
+    {
+      "id": "ach-3",
+      "title": "Contest Contender",
+      "icon": "🏆",
+      "description": "Ranked in Top 5 weekly showcase entries",
+      "unlockedAt": "Sep 2026"
+    },
+    {
+      "id": "ach-4",
+      "title": "Eco Impact Hero",
+      "icon": "🌍",
+      "description": "Diverted over 35kg of solid landfill waste",
+      "unlockedAt": "Sep 2026"
+    }
+  ],
+  "weeklyContestMilestones": [
+    {
+      "week": 37,
+      "achievement": "Top 10 Finalist — Paper Crafting Edition",
+      "badge": "🥈 Silver Ribbon"
+    },
+    {
+      "week": 35,
+      "achievement": "Community Choice Favorite",
+      "badge": "⭐ Spotlight Award"
+    }
+  ],
+  "materialsIHave": [
+    "Plastic",
+    "Paper-Cardboard",
+    "Fabric",
+    "Glass",
+    "Metal"
+  ]
+}

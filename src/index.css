@@ -1,0 +1,239 @@
+@import "tailwindcss";
+
+@import "./design-system/tokens.css";
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text-accent-dark);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+      Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue',
+      sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: ui-sans-serif, system-ui, -apple-system,
+      BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+      sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color: var(--color-text-accent-dark);
+  }
+}
+
+/* =========================================
+   Neubrutalism Utilities
+   ========================================= */
+
+.neu-border {
+  border: 2.5px solid var(--color-text-accent-dark);
+}
+
+.neu-border-thick {
+  border: 3.5px solid var(--color-text-accent-dark);
+}
+
+.neu-shadow {
+  box-shadow: 4px 4px 0px var(--color-text-accent-dark);
+}
+
+.neu-shadow-sm {
+  box-shadow: 2px 2px 0px var(--color-text-accent-dark);
+}
+
+.neu-shadow-lg {
+  box-shadow: 6px 6px 0px var(--color-text-accent-dark);
+}
+
+.neu-shadow-secondary {
+  box-shadow: 4px 4px 0px var(--color-secondary);
+}
+
+.neu-shadow-primary {
+  box-shadow: 4px 4px 0px var(--color-primary);
+}
+
+.neu-card {
+  border: 2.5px solid var(--color-text-accent-dark);
+  box-shadow: 4px 4px 0px var(--color-text-accent-dark);
+  background-color: var(--color-background);
+  border-radius: 1rem;
+}
+
+.neu-btn {
+  border: 2.5px solid var(--color-text-accent-dark);
+  box-shadow: 4px 4px 0px var(--color-text-accent-dark);
+  border-radius: 0.875rem;
+  font-weight: 700;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.neu-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--color-text-accent-dark);
+}
+
+.neu-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px var(--color-text-accent-dark);
+}
+
+/* =========================================
+   Glassmorphism
+   Uses the new brand colors
+   ========================================= */
+
+.glass-nav {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  background: color-mix(
+    in oklch,
+    var(--color-background) 82%,
+    transparent
+  );
+
+  border-bottom: 1px solid
+    color-mix(
+      in oklch,
+      var(--color-primary) 35%,
+      transparent
+    );
+
+  box-shadow: 0 8px 30px
+    color-mix(
+      in oklch,
+      var(--color-text-accent-dark) 8%,
+      transparent
+    );
+}
+
+.glass-floating {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  background: color-mix(
+    in oklch,
+    var(--color-background) 85%,
+    white 15%
+  );
+
+  border: 1px solid
+    color-mix(
+      in oklch,
+      var(--color-secondary) 30%,
+      transparent
+    );
+
+  box-shadow: 0 12px 35px
+    color-mix(
+      in oklch,
+      var(--color-text-accent-dark) 14%,
+      transparent
+    );
+}
+
+/* =========================================
+   Additional Brand Color Utilities
+   ========================================= */
+
+.brand-lilac {
+  background-color: var(--brand-lilac);
+}
+
+.brand-mint {
+  background-color: var(--brand-mint);
+}
+
+.brand-coral {
+  background-color: var(--brand-coral);
+}
+
+.brand-mustard {
+  background-color: var(--brand-mustard);
+}
+
+.brand-pink {
+  background-color: var(--brand-pink);
+}
+
+.brand-ink {
+  background-color: var(--brand-ink);
+}
+
+/* =========================================
+   Animations
+   ========================================= */
+
+@keyframes spin-very-slow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-reverse-slow {
+  from {
+    transform: rotate(360deg);
+  }
+
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes float-gentle {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-8px) rotate(1.5deg);
+  }
+}
+
+@keyframes pulse-subtle {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+
+  50% {
+    transform: scale(1.03);
+    opacity: 1;
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-very-slow 60s linear infinite;
+}
+
+.animate-spin-reverse-slow {
+  animation: spin-reverse-slow 80s linear infinite;
+}
+
+.animate-float {
+  animation: float-gentle 4s ease-in-out infinite;
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 6s ease-in-out infinite;
+}
