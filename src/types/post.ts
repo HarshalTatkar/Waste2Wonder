@@ -1,10 +1,11 @@
 export interface Comment {
   id: string;
   author: string;
-  username: string;
+  username?: string;
   avatar: string;
   text: string;
   date: string;
+  likes?: number;
 }
 
 export interface Post {

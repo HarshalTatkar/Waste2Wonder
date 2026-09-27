@@ -209,14 +209,13 @@ export const PostCard: React.FC<PostCardProps> = ({
           </span>
         </div>
 
-        <Button
-          variant="secondary"
-          size="sm"
+        <button
           onClick={() => onTryIt(post)}
-          icon={<CheckCircle2 className="w-4 h-4" />}
+          className="px-4 py-2 rounded-full border-[2px] border-black bg-[#98EECC] text-black font-black text-xs shadow-[2px_2px_0px_#000] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-none flex items-center gap-1.5 cursor-pointer transition-all"
         >
-          Try It & Upload Result
-        </Button>
+          <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+          <span>Try It</span>
+        </button>
       </div>
     </article>
   );

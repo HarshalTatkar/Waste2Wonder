@@ -8,9 +8,11 @@ import { PrecautionsBox } from '../components/craft-detail/PrecautionsBox';
 import { GeneratedImageGallery } from '../components/craft-detail/GeneratedImageGallery';
 import { EngagementBar } from '../components/craft-detail/EngagementBar';
 import { UploadResultModal } from '../components/craft-detail/UploadResultModal';
+import { CommentSection } from '../components/community/CommentSection';
 import { Button } from '../components/common/Button';
 import { useUser } from '../context/UserContext';
-import { ArrowLeft, Video, Sparkles, User, Share2, Bookmark } from 'lucide-react';
+import { ArrowLeft, Sparkles } from 'lucide-react';
+import { Comment } from '../types/post';
 
 interface CraftDetailProps {
   project: Project;
@@ -21,10 +23,29 @@ interface CraftDetailProps {
 export const CraftDetail: React.FC<CraftDetailProps> = ({
   project,
   onBack,
-  onNavigate,
 }) => {
-  const { addImplementedCraft } = useUser();
+  const { user, addImplementedCraft } = useUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Dedicated interactive comments state for this craft
+  const [comments, setComments] = useState<Comment[]>([
+    {
+      id: 'c-1',
+      author: 'Maya Lin',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      text: 'Made this over the weekend! Highly recommend using heat-treated pallet wood for extra stability.',
+      date: '2 days ago',
+      likes: 14,
+    },
+    {
+      id: 'c-2',
+      author: 'Arjun Patel',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+      text: 'Great step-by-step instructions. The safety tips on cutting were super helpful.',
+      date: 'Yesterday',
+      likes: 8,
+    },
+  ]);
 
   const isYouTube = project.source === 'youtube';
   const isInApp = project.source === 'in_app';
@@ -46,6 +67,34 @@ export const CraftDetail: React.FC<CraftDetailProps> = ({
     });
   };
 
+  const handleScrollToSteps = () => {
+    const el = document.getElementById('step-list-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleScrollToComments = () => {
+    const el = document.getElementById('comments-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+      const input = el.querySelector('input');
+      if (input) input.focus();
+    }
+  };
+
+  const handleAddComment = (text: string) => {
+    const newComment: Comment = {
+      id: `comm-${Date.now()}`,
+      author: user?.name || 'You',
+      avatar: user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
+      text,
+      date: 'Just now',
+      likes: 0,
+    };
+    setComments((prev) => [newComment, ...prev]);
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-left">
       {/* Top Navigation Row */}
@@ -64,43 +113,40 @@ export const CraftDetail: React.FC<CraftDetailProps> = ({
 
       {/* Main Title & Description */}
       <div className="mb-6">
-        <h1 className="text-3xl sm:text-5xl font-black text-[var(--color-text-accent-dark)] tracking-tight leading-tight">
+        <h1 className="text-3xl sm:text-5xl font-black text-black tracking-tight leading-tight uppercase">
           {project.title}
         </h1>
-        <p className="text-base sm:text-lg font-bold text-[var(--color-text-accent-dark)]/80 mt-2 leading-relaxed">
+        <p className="text-base sm:text-lg font-bold text-black/80 mt-2 leading-relaxed">
           {project.description}
         </p>
       </div>
 
       {/* Media Showcase Branching by Source */}
-
-      {/* Branch 1: In-App Post (Original High Res Cover Photo) */}
       {isInApp && (
-        <div className="relative aspect-video sm:aspect-21/9 rounded-3xl border-[3px] border-[var(--color-text-accent-dark)] shadow-[6px_6px_0px_var(--color-text-accent-dark)] overflow-hidden bg-gray-100 mb-6">
+        <div className="relative aspect-video sm:aspect-21/9 rounded-3xl border-[3px] border-black shadow-[6px_6px_0px_#000] overflow-hidden bg-gray-100 mb-6">
           <img
             src={project.coverImage}
             alt={project.title}
             className="w-full h-full object-cover"
           />
           {project.author && (
-            <div className="absolute bottom-4 left-4 bg-white/95 px-3 py-1.5 rounded-xl border-[2px] border-[var(--color-text-accent-dark)] shadow-[3px_3px_0px_var(--color-text-accent-dark)] flex items-center gap-2">
+            <div className="absolute bottom-4 left-4 bg-white/95 px-3 py-1.5 rounded-xl border-[2px] border-black shadow-[3px_3px_0px_#000] flex items-center gap-2">
               <img
                 src={project.author.avatar}
                 alt={project.author.name}
-                className="w-7 h-7 rounded-lg object-cover border border-[var(--color-text-accent-dark)]"
+                className="w-7 h-7 rounded-lg object-cover border border-black"
               />
               <span className="text-xs font-black">
-                Original Post by {project.author.name}
+                Created by {project.author.name}
               </span>
             </div>
           )}
         </div>
       )}
 
-      {/* Branch 2: YouTube Video Source (Embedded video + Generated from video label) */}
       {isYouTube && (
         <div className="mb-6 space-y-3">
-          <div className="relative aspect-video rounded-3xl border-[3px] border-[var(--color-text-accent-dark)] shadow-[6px_6px_0px_var(--color-text-accent-dark)] overflow-hidden bg-black">
+          <div className="relative aspect-video rounded-3xl border-[3px] border-black shadow-[6px_6px_0px_#000] overflow-hidden bg-black">
             <iframe
               className="w-full h-full"
               src={`https://www.youtube.com/embed/${project.youtubeVideoId || 'dQw4w9WgXcQ'}`}
@@ -109,17 +155,9 @@ export const CraftDetail: React.FC<CraftDetailProps> = ({
               allowFullScreen
             />
           </div>
-
-          <div className="p-3 bg-[#FFF6E0] border-[2px] border-[var(--color-text-accent-dark)] rounded-xl flex items-center gap-2 text-xs font-black text-[#3A3A3A] shadow-[2px_2px_0px_var(--color-text-accent-dark)]">
-            <Sparkles className="w-4 h-4 text-[var(--color-secondary)] shrink-0" />
-            <span>
-              <strong>Generated from video:</strong> Steps, timing, and materials were auto-synthesized by AI from this video tutorial.
-            </span>
-          </div>
         </div>
       )}
 
-      {/* Branch 3: No Match Found / Full AI Synthesis (Multi-stage Visual Gallery) */}
       {isAiGen && (
         <GeneratedImageGallery
           finalOutputImage={project.finalOutputImage || project.coverImage}
@@ -130,10 +168,11 @@ export const CraftDetail: React.FC<CraftDetailProps> = ({
       {/* Engagement Bar (Likes, Comments, Views, Implementation count, "Try It") */}
       <EngagementBar
         initialLikes={project.likes}
-        commentsCount={project.commentsCount}
+        commentsCount={comments.length}
         views={project.views}
         implementationsCount={project.implementationsCount}
-        onTryIt={() => setIsModalOpen(true)}
+        onTryIt={handleScrollToSteps}
+        onCommentClick={handleScrollToComments}
       />
 
       {/* Key Project Specs Row */}
@@ -142,7 +181,7 @@ export const CraftDetail: React.FC<CraftDetailProps> = ({
         estimatedCost={project.estimatedCost}
         difficulty={project.difficulty}
         material={project.material}
-        isAiGeneratedLabel={isYouTube || isAiGen}
+        isAiGeneratedLabel={false}
       />
 
       {/* Precautions Warning Box */}
@@ -151,31 +190,40 @@ export const CraftDetail: React.FC<CraftDetailProps> = ({
       {/* Materials Needed Checklist */}
       <MaterialsList materials={project.materialsNeeded} />
 
-      {/* Step by Step List */}
-      <StepList steps={project.steps} isAiGenerated={isYouTube || isAiGen} />
+      {/* Step by Step List - with Anchor ID */}
+      <div id="step-list-section" className="pt-2">
+        <StepList steps={project.steps} isAiGenerated={isYouTube || isAiGen} />
+      </div>
 
-      {/* Bottom Sticky Action Bar */}
-      <div className="p-6 bg-white border-[3px] border-[var(--color-text-accent-dark)] shadow-[6px_6px_0px_var(--color-text-accent-dark)] rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4 mt-12">
+      {/* Bottom Action Bar: Upload Result Photo after finishing steps */}
+      <div className="p-6 sm:p-8 bg-white border-[3px] border-black shadow-[6px_6px_0px_#000] rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4 mt-10">
         <div>
-          <h3 className="font-black text-xl text-[var(--color-text-accent-dark)]">
+          <h3 className="font-black text-xl text-black">
             Did you build this project?
           </h3>
-          <p className="text-xs sm:text-sm font-bold text-[var(--color-text-accent-dark)]/70">
-            Upload your finished result photo to log eco-impact and inspire fellow makers.
+          <p className="text-xs sm:text-sm font-bold text-black/70">
+            Upload your finished result photo to log your environmental impact and showcase your craft.
           </p>
         </div>
 
-        <Button
-          variant="primary"
-          size="lg"
+        <button
           onClick={() => setIsModalOpen(true)}
-          icon={<Sparkles className="w-5 h-5 text-[#FFD166]" />}
+          className="px-6 py-3 rounded-full border-[2.5px] border-black bg-[#FFAAA6] text-black font-black text-sm shadow-[4px_4px_0px_#000] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#000] active:translate-y-0.5 active:shadow-none flex items-center gap-2 cursor-pointer transition-all shrink-0"
         >
-          Upload My Result Photo
-        </Button>
+          <Sparkles className="w-4 h-4 text-black" />
+          <span>Upload My Result Photo</span>
+        </button>
       </div>
 
-      {/* Upload My Result Modal (Section 1 Behavior) */}
+      {/* Fully Functional Interactive Comments Section */}
+      <CommentSection
+        comments={comments}
+        onAddComment={handleAddComment}
+        currentUserAvatar={user?.avatar}
+        currentUserName={user?.name}
+      />
+
+      {/* Upload My Result Modal with Genuine File Uploading */}
       <UploadResultModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

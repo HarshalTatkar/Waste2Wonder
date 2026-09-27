@@ -69,15 +69,15 @@ export const UploadScan: React.FC<UploadScanProps> = ({ onNavigate }) => {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Page Header */}
       <div className="text-left mb-8">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[var(--color-primary)] text-white text-xs font-black rounded-lg uppercase tracking-wider mb-2">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border-[2px] border-black rounded-full text-xs font-black shadow-[2px_2px_0px_#000] uppercase tracking-wider mb-2">
           <Camera className="w-3.5 h-3.5" />
-          <span>Section 1 • Vision Pipeline</span>
+          <span>AI Vision Scanner</span>
         </div>
-        <h1 className="text-3xl sm:text-5xl font-black text-[var(--color-text-accent-dark)] tracking-tight">
-          AI WASTE IMAGE RECOGNITION
+        <h1 className="text-3xl sm:text-5xl font-black text-black tracking-tight uppercase">
+          SNAP YOUR WASTE MATERIAL
         </h1>
-        <p className="text-sm sm:text-base font-bold text-[var(--color-text-accent-dark)]/75 mt-1 max-w-2xl">
-          Upload up to 4 photos from different angles. Our vision model determines the specific object, fiber weave, or fracture pattern and retrieves verified In-App & YouTube upcycling builds.
+        <p className="text-sm sm:text-base font-bold text-black/75 mt-1 max-w-2xl">
+          Upload up to 4 photos. Our AI vision model identifies the material condition and finds step-by-step DIY project ideas.
         </p>
       </div>
 
@@ -171,22 +171,22 @@ export const UploadScan: React.FC<UploadScanProps> = ({ onNavigate }) => {
                   variant="cream"
                   size="sm"
                   onClick={() => setShowChatbot(!showChatbot)}
-                  icon={<HelpCircle className="w-4 h-4 text-[var(--color-secondary)]" />}
+                  icon={<HelpCircle className="w-4 h-4 text-black" />}
                 >
-                  {showChatbot ? 'Hide Assistant' : 'Chatbot Fallback'}
+                  {showChatbot ? 'Hide Assistant' : 'Need Custom Ideas?'}
                 </Button>
               </div>
             </div>
 
             {/* Matched Tags */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-black uppercase text-[var(--color-text-accent-dark)]/70">
-                Key Signatures:
+              <span className="text-xs font-black uppercase text-black/70">
+                Identified:
               </span>
               {analysisResult.suggestedTags.map((tag, idx) => (
                 <span
                   key={idx}
-                  className="px-3 py-1 bg-[var(--color-background)] rounded-lg border border-[var(--color-text-accent-dark)] text-xs font-black"
+                  className="px-3 py-1 bg-white rounded-full border-[1.5px] border-black text-xs font-black"
                 >
                   #{tag}
                 </span>
@@ -202,19 +202,19 @@ export const UploadScan: React.FC<UploadScanProps> = ({ onNavigate }) => {
             />
           )}
 
-          {/* Dual-Source Ranked Results (Vertical Stack of Cards as per Section 1) */}
+          {/* Recommended Craft Projects */}
           <div>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-2xl font-black text-[var(--color-text-accent-dark)]">
-                  Ranked Match Upcycling Options
+                <h3 className="text-2xl font-black text-black">
+                  Recommended Projects for Your Waste
                 </h3>
-                <p className="text-xs sm:text-sm font-bold text-[var(--color-text-accent-dark)]/70">
-                  Dual-source results ranked by closest match: In-App Posts & YouTube Guides
+                <p className="text-xs sm:text-sm font-bold text-black/70">
+                  Step-by-step DIY project ideas matched to this material
                 </p>
               </div>
-              <span className="px-3 py-1 bg-[var(--color-background)] border-[2px] border-[var(--color-text-accent-dark)] rounded-xl text-xs font-black">
-                {analysisResult.matchedProjects.length} Verified Solutions
+              <span className="px-3 py-1 bg-white border-[2px] border-black rounded-xl text-xs font-black shadow-[2px_2px_0px_#000]">
+                {analysisResult.matchedProjects.length} Projects Found
               </span>
             </div>
 

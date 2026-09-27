@@ -17,6 +17,8 @@ export interface Project {
   difficulty: 'Easy' | 'Medium' | 'Hard';
   timeRequired: string;
   estimatedCost: string;
+  wasteSaved?: string;
+  cardBgColor?: string;
   materialsNeeded: string[];
   precautions: string[];
   steps: CraftStep[];

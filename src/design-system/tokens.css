@@ -1,13 +1,18 @@
 :root {
-  --color-primary: oklch(0.78 0.11 305);
-  --color-secondary: oklch(0.78 0.14 30);
-  --color-background: oklch(0.86 0.10 355);
-  --color-text-accent-dark: oklch(0.14 0.02 280);
+  /* Warm peach/rose canvas & Neubrutalist palette matching provided images */
+  --color-primary: #86EFAC;
+  --color-secondary: #FDA4AF;
+  --color-background: #FAD2C0;
+  --color-text-accent-dark: #121212;
 
-  --brand-lilac: oklch(0.78 0.11 305);
-  --brand-mint: oklch(0.88 0.11 155);
-  --brand-coral: oklch(0.78 0.14 30);
-  --brand-mustard: oklch(0.85 0.14 85);
-  --brand-pink: oklch(0.86 0.10 355);
-  --brand-ink: oklch(0.14 0.02 280);
+  --brand-peach: #FAD2C0;
+  --brand-rose: #F7B5A0;
+  --brand-coral: #FFAAA6;
+  --brand-salmon: #FDA4AF;
+  --brand-mint: #98EECC;
+  --brand-yellow: #FCD34D;
+  --brand-pink: #FBCFE8;
+  --brand-lavender: #DDD6FE;
+  --brand-cream: #FFFDF9;
+  --brand-ink: #121212;
 }

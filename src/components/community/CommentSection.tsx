@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { Comment } from '../../types/post';
-import { Send, User } from 'lucide-react';
-import { Button } from '../common/Button';
+import { Send } from 'lucide-react';
 
 interface CommentSectionProps {
   comments: Comment[];
-  onAddComment: (text: string) => Promise<void>;
+  onAddComment: (text: string) => Promise<void> | void;
   currentUserAvatar?: string;
   currentUserName?: string;
 }
@@ -27,70 +26,81 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
     try {
       await onAddComment(commentText);
       setCommentText('');
+    } catch (err) {
+      console.error('Error posting comment', err);
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="mt-6 pt-6 border-t-[2px] border-[var(--color-text-accent-dark)]/20">
-      <h4 className="font-black text-lg text-[var(--color-text-accent-dark)] mb-4">
-        Community Discussion ({comments.length})
-      </h4>
+    <div id="comments-section" className="mt-8 pt-6 border-t-[2.5px] border-black">
+      <div className="flex items-center justify-between mb-4">
+        <h4 className="font-black text-xl text-black">
+          Comments & Community Tips ({comments.length})
+        </h4>
+        <span className="text-xs font-bold text-black/60">Be nice & helpful</span>
+      </div>
 
       {/* Input box */}
-      <form onSubmit={handleSubmit} className="flex gap-3 mb-6">
+      <form onSubmit={handleSubmit} className="flex items-center gap-3 mb-6">
         <img
           src={currentUserAvatar}
           alt={currentUserName}
-          className="w-10 h-10 rounded-xl object-cover border-[2px] border-[var(--color-text-accent-dark)] shadow-[2px_2px_0px_var(--color-text-accent-dark)] shrink-0"
+          className="w-10 h-10 rounded-full object-cover border-[2px] border-black shadow-[2px_2px_0px_#000] shrink-0"
         />
         <div className="flex-1 flex gap-2">
           <input
             type="text"
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
-            placeholder="Share tips, questions, or praise for this build..."
-            className="flex-1 px-4 py-2 bg-[var(--color-background)] rounded-xl border-[2px] border-[var(--color-text-accent-dark)] shadow-[2px_2px_0px_var(--color-text-accent-dark)] text-xs sm:text-sm font-bold focus:outline-none focus:bg-white"
+            placeholder="Share tips, questions, or modifications for this craft..."
+            className="flex-1 px-4 py-2.5 bg-white rounded-full border-[2px] border-black shadow-[2px_2px_0px_#000] text-xs sm:text-sm font-bold text-black focus:outline-none focus:ring-2 focus:ring-black"
           />
-          <Button
+          <button
             type="submit"
-            variant="primary"
-            size="sm"
             disabled={!commentText.trim() || submitting}
+            className={`px-5 py-2.5 rounded-full border-[2px] border-black font-black text-xs text-black shadow-[2px_2px_0px_#000] flex items-center gap-1.5 transition-all cursor-pointer ${
+              !commentText.trim() || submitting
+                ? 'bg-gray-200 opacity-60 cursor-not-allowed shadow-none'
+                : 'bg-[#98EECC] hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_#000] active:translate-y-0.5'
+            }`}
           >
-            <Send className="w-4 h-4" />
-          </Button>
+            <Send className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>Post</span>
+          </button>
         </div>
       </form>
 
       {/* Comments List */}
-      <div className="space-y-3.5">
+      <div className="space-y-3">
         {comments.length === 0 ? (
-          <p className="text-xs font-bold text-[var(--color-text-accent-dark)]/60 text-center py-4">
-            No comments yet. Be the first to start the upcycling conversation!
-          </p>
+          <div className="bg-white/80 border-[2px] border-black rounded-2xl p-6 text-center shadow-[3px_3px_0px_#000]">
+            <p className="text-sm font-bold text-black/70">
+              No comments yet. Start the conversation with your tips or questions!
+            </p>
+          </div>
         ) : (
           comments.map((c) => (
             <div
               key={c.id}
-              className="p-3.5 rounded-xl bg-[var(--color-background)] border-[1.5px] border-[var(--color-text-accent-dark)] shadow-[2px_2px_0px_var(--color-text-accent-dark)] flex items-start gap-3"
+              className="p-4 rounded-2xl bg-white border-[2px] border-black shadow-[3px_3px_0px_#000] flex items-start gap-3"
             >
               <img
                 src={c.avatar}
                 alt={c.author}
-                className="w-8 h-8 rounded-lg object-cover border border-[var(--color-text-accent-dark)] shrink-0"
+                className="w-9 h-9 rounded-full object-cover border-[1.5px] border-black shrink-0"
               />
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <span className="font-black text-xs text-[var(--color-text-accent-dark)]">
+                  <span className="font-black text-sm text-black">
                     {c.author}
                   </span>
-                  <span className="text-[10px] font-bold text-[var(--color-text-accent-dark)]/60">
+                  <span className="text-[11px] font-bold text-black/50">
                     {c.date}
                   </span>
                 </div>
-                <p className="text-xs font-bold text-[var(--color-text-accent-dark)]/85 mt-1 leading-relaxed">
+                <p className="text-xs sm:text-sm font-bold text-black/85 mt-1 leading-relaxed">
                   {c.text}
                 </p>
               </div>

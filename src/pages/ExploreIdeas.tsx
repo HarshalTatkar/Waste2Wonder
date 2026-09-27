@@ -40,15 +40,15 @@ export const ExploreIdeas: React.FC<ExploreIdeasProps> = ({
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-left">
       {/* Header */}
       <div className="mb-8">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[var(--color-primary)] text-white text-xs font-black rounded-lg uppercase tracking-wider mb-2">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border-[2px] border-black rounded-full text-xs font-black shadow-[2px_2px_0px_#000] uppercase tracking-wider mb-2">
           <Compass className="w-3.5 h-3.5" />
-          <span>Ranked Craft Ideas Archive</span>
+          <span>Upcycling Catalog</span>
         </div>
-        <h1 className="text-3xl sm:text-5xl font-black text-[var(--color-text-accent-dark)] tracking-tight">
-          EXPLORE UPGRADE PROJECTS
+        <h1 className="text-3xl sm:text-5xl font-black text-black tracking-tight uppercase">
+          EXPLORE UPCYCLING IDEAS
         </h1>
-        <p className="text-sm sm:text-base font-bold text-[var(--color-text-accent-dark)]/75 mt-1 max-w-2xl">
-          Search the complete catalog of verified In-App submissions, curated YouTube tutorials, and AI syntheses. Filter by difficulty, time, or waste category.
+        <p className="text-sm sm:text-base font-bold text-black/75 mt-1 max-w-2xl">
+          Browse tested maker builds, video guides, and AI-generated projects. Filter by material, time, or difficulty.
         </p>
       </div>
 

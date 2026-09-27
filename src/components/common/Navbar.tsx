@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Sparkles, Camera, Menu, X, Trophy, Layers, Compass, Users, User as UserIcon } from 'lucide-react';
-import { Button } from './Button';
+import { Menu, X, Sparkles, User as UserIcon } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { useUser } from '../../context/UserContext';
 
 interface NavbarProps {
   activeTab: string;
@@ -9,15 +10,14 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isAuthenticated, logout } = useAuth();
+  const { user } = useUser();
 
   const navItems = [
     { id: 'home', label: 'Home' },
-    { id: 'explore', label: 'Explore Ideas', icon: <Compass className="w-4 h-4" /> },
-    { id: 'scan', label: 'Scan-Upload', icon: <Camera className="w-4 h-4" /> },
-    { id: 'materials', label: 'Materials I Have', icon: <Layers className="w-4 h-4" /> },
-    { id: 'contest', label: 'Contest', badge: 'LIVE', icon: <Trophy className="w-4 h-4 text-[#C97C5D]" /> },
-    { id: 'community', label: 'Community', icon: <Users className="w-4 h-4" /> },
-    { id: 'profile', label: 'Profile', icon: <UserIcon className="w-4 h-4" /> },
+    { id: 'explore', label: 'Explore' },
+    { id: 'contest', label: 'Contest' },
+    { id: 'community', label: 'Community' },
   ];
 
   const handleNav = (page: string) => {
@@ -26,124 +26,123 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate }) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full glass-nav transition-all duration-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
-        {/* Brand Logo */}
+    <header className="sticky top-3 z-40 w-full max-w-6xl mx-auto px-3 sm:px-6 transition-all duration-200">
+      <div className="floating-capsule-nav px-4 sm:px-6 py-2.5 flex items-center justify-between">
+        {/* Brand Logo - exactly matching user images */}
         <div
           onClick={() => handleNav('home')}
-          className="flex items-center gap-2.5 cursor-pointer select-none group"
+          className="flex items-center gap-2 cursor-pointer select-none group"
         >
-          <div className="w-10 h-10 rounded-xl bg-[var(--color-primary)] border-[2.5px] border-[var(--color-text-accent-dark)] shadow-[3px_3px_0px_var(--color-text-accent-dark)] flex items-center justify-center text-white group-hover:-translate-x-0.5 group-hover:-translate-y-0.5 group-hover:shadow-[4px_4px_0px_var(--color-text-accent-dark)] transition-all">
-            <Sparkles className="w-5 h-5 text-[#FFD166] stroke-[2.5]" />
+          {/* Black rounded square with mint emblem */}
+          <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center p-1.5 shadow-[1.5px_1.5px_0px_#000]">
+            <div className="w-3.5 h-3.5 bg-[#98EECC] rotate-45 rounded-[2px]" />
           </div>
-          <div className="flex flex-col">
-            <span className="font-black text-xl tracking-tight text-[var(--color-text-accent-dark)] leading-tight">
-              Waste<span className="text-[var(--color-secondary)]">2</span>Wonder
-            </span>
-            <span className="text-[10px] font-black tracking-wider text-[var(--color-primary)] uppercase">
-              Upcycling Engine
-            </span>
-          </div>
+          <span className="font-black text-lg sm:text-xl tracking-tight text-black uppercase">
+            WASTE2WONDER
+          </span>
         </div>
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-1.5">
+        {/* Center Navigation Links */}
+        <nav className="hidden md:flex items-center gap-6 lg:gap-8">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => handleNav(item.id)}
-                className={`relative px-3.5 py-1.5 rounded-xl font-extrabold text-sm transition-all duration-150 inline-flex items-center gap-1.5 cursor-pointer ${
+                className={`font-black text-sm tracking-wide transition-all cursor-pointer select-none ${
                   isActive
-                    ? 'bg-white border-[2px] border-[var(--color-text-accent-dark)] text-[var(--color-text-accent-dark)] shadow-[3px_3px_0px_var(--color-text-accent-dark)]'
-                    : 'text-[var(--color-text-accent-dark)]/80 hover:text-[var(--color-text-accent-dark)] hover:bg-white/60'
+                    ? 'text-black underline underline-offset-4 decoration-2 decoration-black'
+                    : 'text-black/80 hover:text-black hover:opacity-100'
                 }`}
               >
-                {item.icon}
-                <span>{item.label}</span>
-                {item.badge && (
-                  <span className="ml-1 px-1.5 py-0.2 bg-[var(--color-secondary)] text-white text-[9px] font-black rounded-full uppercase tracking-wider animate-pulse">
-                    {item.badge}
-                  </span>
-                )}
+                {item.label}
               </button>
             );
           })}
         </nav>
 
-        {/* Action Button CTA */}
-        <div className="hidden sm:flex items-center gap-3">
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => handleNav('scan')}
-            icon={<Camera className="w-4 h-4" />}
-          >
-            Scan Waste
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => handleNav('create-post')}
-          >
-            + Post Craft
-          </Button>
+        {/* Right Auth Buttons - exactly matching screenshot */}
+        <div className="hidden sm:flex items-center gap-2.5">
+          {isAuthenticated ? (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleNav('profile')}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-full border-[2px] border-black bg-white shadow-[2px_2px_0px_#000] font-black text-xs cursor-pointer hover:-translate-y-0.5 transition-all ${
+                  activeTab === 'profile' ? 'ring-2 ring-black bg-[#98EECC]' : ''
+                }`}
+              >
+                <img
+                  src={user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'}
+                  alt={user?.name || 'Profile'}
+                  className="w-5 h-5 rounded-full object-cover border border-black"
+                />
+                <span className="truncate max-w-[90px]">{user?.name?.split(' ')[0] || 'Profile'}</span>
+              </button>
+              <button
+                onClick={() => handleNav('scan')}
+                className="px-3.5 py-1.5 rounded-full border-[2px] border-black bg-[#FDA4AF] shadow-[2px_2px_0px_#000] font-black text-xs text-black cursor-pointer hover:-translate-y-0.5 active:translate-y-0.5 transition-all"
+              >
+                Scan Waste
+              </button>
+            </div>
+          ) : (
+            <>
+              <button
+                onClick={() => handleNav('login')}
+                className="px-4 py-1.5 rounded-full border-[2px] border-black bg-white shadow-[2px_2px_0px_#000] font-black text-xs text-black cursor-pointer hover:-translate-y-0.5 active:translate-y-0.5 transition-all"
+              >
+                Log In
+              </button>
+              <button
+                onClick={() => handleNav('signup')}
+                className="px-4 py-1.5 rounded-full border-[2px] border-black bg-[#FDA4AF] shadow-[2px_2px_0px_#000] font-black text-xs text-black cursor-pointer hover:-translate-y-0.5 active:translate-y-0.5 transition-all"
+              >
+                Sign Up
+              </button>
+            </>
+          )}
         </div>
 
         {/* Mobile menu toggle */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="lg:hidden p-2 rounded-xl border-[2px] border-[var(--color-text-accent-dark)] bg-white text-[var(--color-text-accent-dark)] shadow-[2px_2px_0px_var(--color-text-accent-dark)] active:translate-x-[1px] active:translate-y-[1px]"
+          className="md:hidden p-1.5 rounded-full border-[2px] border-black bg-white shadow-[2px_2px_0px_#000]"
           aria-label="Toggle menu"
         >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden px-4 pt-2 pb-6 border-b border-[var(--color-primary)]/30 bg-[#F5F1E8]/95 backdrop-blur-xl animate-in slide-in-from-top-4 duration-200">
-          <div className="grid grid-cols-1 gap-2">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleNav(item.id)}
-                className={`w-full text-left px-4 py-2.5 rounded-xl font-black text-sm flex items-center justify-between border-[2px] ${
-                  activeTab === item.id
-                    ? 'bg-white border-[var(--color-text-accent-dark)] shadow-[3px_3px_0px_var(--color-text-accent-dark)]'
-                    : 'border-transparent text-[var(--color-text-accent-dark)]/85 hover:bg-white/50'
-                }`}
-              >
-                <span className="flex items-center gap-2">
-                  {item.icon}
-                  {item.label}
-                </span>
-                {item.badge && (
-                  <span className="px-2 py-0.5 bg-[var(--color-secondary)] text-white text-[10px] font-black rounded-full">
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            ))}
-            <div className="pt-3 grid grid-cols-2 gap-2">
-              <Button
-                variant="primary"
-                size="sm"
-                fullWidth
-                onClick={() => handleNav('scan')}
-              >
-                Scan Waste
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                fullWidth
-                onClick={() => handleNav('create-post')}
-              >
-                + Post Craft
-              </Button>
-            </div>
+        <div className="md:hidden mt-2 p-4 bg-[#FCD5CE] border-[2.5px] border-black rounded-3xl shadow-[4px_4px_0px_#000] flex flex-col gap-2.5 animate-in slide-in-from-top-2">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleNav(item.id)}
+              className={`text-left px-4 py-2 rounded-xl font-black text-sm border-[2px] ${
+                activeTab === item.id
+                  ? 'bg-white border-black shadow-[2px_2px_0px_#000]'
+                  : 'border-transparent text-black hover:bg-white/60'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+          <div className="pt-2 border-t border-black/20 flex gap-2">
+            <button
+              onClick={() => handleNav('profile')}
+              className="flex-1 py-2 rounded-full border-[2px] border-black bg-white shadow-[2px_2px_0px_#000] font-black text-xs text-black text-center"
+            >
+              My Profile
+            </button>
+            <button
+              onClick={() => handleNav('scan')}
+              className="flex-1 py-2 rounded-full border-[2px] border-black bg-[#FDA4AF] shadow-[2px_2px_0px_#000] font-black text-xs text-black text-center"
+            >
+              Scan Waste
+            </button>
           </div>
         </div>
       )}
