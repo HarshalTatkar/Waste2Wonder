@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { Post } from '../../types/post';
-import { Heart, MessageCircle, Eye, CheckCircle2, Clock, DollarSign, AlertCircle, Share2, Layers } from 'lucide-react';
+import { Heart, MessageCircle, Eye, CheckCircle2, Clock, DollarSign, AlertCircle, Share2, Layers, Trash2 } from 'lucide-react';
 import { formatCount, getDifficultyColor } from '../../utils/formatters';
 import { Button } from '../common/Button';
 import confetti from 'canvas-confetti';
 
 interface PostCardProps {
   post: Post;
-  onLike: (postId: string) => void;
+  onLike: (postId: string) => Promise<{ likes: number; liked: boolean } | void>;
   onOpenComments: (post: Post) => void;
   onTryIt: (post: Post) => void;
+  onDelete?: (post: Post) => void;
 }
 
 export const PostCard: React.FC<PostCardProps> = ({
@@ -17,22 +18,25 @@ export const PostCard: React.FC<PostCardProps> = ({
   onLike,
   onOpenComments,
   onTryIt,
+  onDelete,
 }) => {
   const [likes, setLikes] = useState(post.likes);
   const [hasLiked, setHasLiked] = useState(false);
   const [viewMode, setViewMode] = useState<'after' | 'before' | 'process'>('after');
   const diff = getDifficultyColor(post.difficulty);
 
-  const handleLikeClick = (e: React.MouseEvent) => {
+  const handleLikeClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!hasLiked) {
-      setLikes((prev) => prev + 1);
-      setHasLiked(true);
-      onLike(post.id);
-      confetti({ particleCount: 20, spread: 45, origin: { y: 0.8 } });
-    } else {
-      setLikes((prev) => prev - 1);
-      setHasLiked(false);
+    // Optimistic update
+    const optimisticLikes = hasLiked ? likes - 1 : likes + 1;
+    setLikes(optimisticLikes);
+    setHasLiked(!hasLiked);
+    if (!hasLiked) confetti({ particleCount: 20, spread: 45, origin: { y: 0.8 } });
+    // Sync with DB and use the authoritative count back
+    const result = await onLike(post.id);
+    if (result) {
+      setLikes(result.likes);
+      setHasLiked(result.liked);
     }
   };
 
@@ -41,11 +45,17 @@ export const PostCard: React.FC<PostCardProps> = ({
       {/* Post Author Header */}
       <div className="flex items-center justify-between pb-4 mb-4 border-b-[2px] border-[var(--color-text-accent-dark)]/20">
         <div className="flex items-center gap-3">
-          <img
-            src={post.author.avatar}
-            alt={post.author.name}
-            className="w-12 h-12 rounded-xl object-cover border-[2px] border-[var(--color-text-accent-dark)] shadow-[2px_2px_0px_var(--color-text-accent-dark)]"
-          />
+          {post.author.avatar ? (
+            <img
+              src={post.author.avatar}
+              alt={post.author.name}
+              className="w-12 h-12 rounded-xl object-cover border-[2px] border-[var(--color-text-accent-dark)] shadow-[2px_2px_0px_var(--color-text-accent-dark)]"
+            />
+          ) : (
+            <div className="w-12 h-12 rounded-xl border-[2px] border-[var(--color-text-accent-dark)] shadow-[2px_2px_0px_var(--color-text-accent-dark)] bg-[var(--color-background)] flex items-center justify-center text-2xl select-none">
+              🧑‍🎨
+            </div>
+          )}
           <div>
             <div className="flex items-center gap-2">
               <h4 className="font-black text-base text-[var(--color-text-accent-dark)] leading-tight">
@@ -63,12 +73,25 @@ export const PostCard: React.FC<PostCardProps> = ({
           </div>
         </div>
 
-        {/* Difficulty badge */}
-        <span
-          className={`px-3 py-1 rounded-xl border-[2px] ${diff.border} ${diff.bg} ${diff.text} text-xs font-black shadow-[2px_2px_0px_var(--color-text-accent-dark)]`}
-        >
-          {post.difficulty}
-        </span>
+        <div className="flex items-center gap-3">
+          {onDelete && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(post);
+              }}
+              className="p-1.5 bg-white border-[2px] border-[#FF6B6B] rounded-lg text-[#FF6B6B] shadow-[2px_2px_0px_#FF6B6B] hover:bg-[#FF6B6B]/10 active:translate-y-0.5 active:shadow-none transition-all"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+          {/* Difficulty badge */}
+          <span
+            className={`px-3 py-1 rounded-xl border-[2px] ${diff.border} ${diff.bg} ${diff.text} text-xs font-black shadow-[2px_2px_0px_var(--color-text-accent-dark)]`}
+          >
+            {post.difficulty}
+          </span>
+        </div>
       </div>
 
       {/* Title & Description */}
@@ -83,18 +106,14 @@ export const PostCard: React.FC<PostCardProps> = ({
       <div className="relative mb-5 rounded-2xl border-[2.5px] border-[var(--color-text-accent-dark)] overflow-hidden shadow-[4px_4px_0px_var(--color-text-accent-dark)] bg-black/5">
         <div className="aspect-video w-full">
           {viewMode === 'after' && (
-            <img
-              src={post.afterImage}
-              alt={`${post.title} after`}
-              className="w-full h-full object-cover animate-in fade-in"
-            />
+            post.afterImage
+              ? <img src={post.afterImage} alt={`${post.title} after`} className="w-full h-full object-cover animate-in fade-in" />
+              : <div className="w-full h-full flex items-center justify-center text-4xl bg-gray-100">✨</div>
           )}
           {viewMode === 'before' && (
-            <img
-              src={post.beforeImage}
-              alt={`${post.title} before`}
-              className="w-full h-full object-cover animate-in fade-in"
-            />
+            post.beforeImage
+              ? <img src={post.beforeImage} alt={`${post.title} before`} className="w-full h-full object-cover animate-in fade-in" />
+              : <div className="w-full h-full flex items-center justify-center text-4xl bg-gray-100">🗑️</div>
           )}
           {viewMode === 'process' && post.processImages && post.processImages.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-1 p-2 h-full bg-gray-50">

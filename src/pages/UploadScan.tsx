@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { DropZone } from '../components/upload/DropZone';
 import { ImagePreviewGrid } from '../components/upload/ImagePreviewGrid';
 import { AnalysisLoader } from '../components/upload/AnalysisLoader';
@@ -8,7 +8,8 @@ import { Button } from '../components/common/Button';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { aiService, ImageAnalysisResult } from '../services/aiService';
 import { Project } from '../types/project';
-import { Sparkles, Camera, RotateCcw, AlertCircle, HelpCircle, PlayCircle, ExternalLink, Wand2 } from 'lucide-react';
+import { Sparkles, Camera, RotateCcw, AlertCircle, HelpCircle, PlayCircle, ExternalLink, Wand2, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { YouTubeResult } from '../services/aiService';
 
 interface UploadScanProps {
   onNavigate: (page: string, params?: any) => void;
@@ -22,6 +23,39 @@ export const UploadScan: React.FC<UploadScanProps> = ({ onNavigate }) => {
   const [showChatbot, setShowChatbot] = useState(false);
   const [generatingCraft, setGeneratingCraft] = useState(false);
   const [generatedCraft, setGeneratedCraft] = useState<Project | null>(null);
+  const [youtubeSteps, setYoutubeSteps] = useState<Record<string, { loading: boolean; steps: { stepNumber: number; title: string; instructions: string }[] | null; error: string | null; collapsed: boolean }>>({});
+
+  // Stores the fetched steps keyed by videoId. `collapsed` tracks whether the user has collapsed it.
+  const handleFetchYoutubeSteps = useCallback(async (vid: YouTubeResult) => {
+    const existing = youtubeSteps[vid.videoId];
+    if (existing && existing.steps) {
+      // Toggle collapse/expand — preserve the fetched steps
+      setYoutubeSteps(prev => ({
+        ...prev,
+        [vid.videoId]: { ...prev[vid.videoId], collapsed: !prev[vid.videoId].collapsed }
+      }));
+      return;
+    }
+    if (existing?.loading) return; // Already fetching
+    setYoutubeSteps(prev => ({ ...prev, [vid.videoId]: { loading: true, steps: null, error: null, collapsed: false } }));
+    // 20 s timeout so the button never hangs forever
+    const timeout = setTimeout(() => {
+      setYoutubeSteps(prev => {
+        if (prev[vid.videoId]?.loading) {
+          return { ...prev, [vid.videoId]: { loading: false, steps: null, error: 'Request timed out. Please try again.', collapsed: false } };
+        }
+        return prev;
+      });
+    }, 20000);
+    try {
+      const res = await aiService.generateStepsFromYouTube(vid.url, vid.title);
+      setYoutubeSteps(prev => ({ ...prev, [vid.videoId]: { loading: false, steps: res.steps, error: null, collapsed: false } }));
+    } catch (err) {
+      setYoutubeSteps(prev => ({ ...prev, [vid.videoId]: { loading: false, steps: null, error: (err as Error).message, collapsed: false } }));
+    } finally {
+      clearTimeout(timeout);
+    }
+  }, [youtubeSteps]);
 
   // Quick preset sample photos for instant testing
   const samplePresets = [
@@ -41,11 +75,16 @@ export const UploadScan: React.FC<UploadScanProps> = ({ onNavigate }) => {
 
   const handleSelectSample = async (url: string, name: string) => {
     try {
-      // Mock File object from preset
-      const mockFile = new File(['mock'], `${name}.jpg`, { type: 'image/jpeg' });
-      addFiles([mockFile]);
+      // Fetch the actual image from the preset URL so Gemini receives real pixels
+      const resp = await fetch(url);
+      const blob = await resp.blob();
+      const file = new File([blob], `${name.replace(/\s+/g, '_')}.jpg`, {
+        type: blob.type || 'image/jpeg',
+      });
+      addFiles([file]);
     } catch {
-      // Fallback
+      // Fallback: inform the user the fetch failed
+      setAnalysisError('Could not download the sample image. Please upload your own photo.');
     }
   };
 
@@ -253,30 +292,58 @@ export const UploadScan: React.FC<UploadScanProps> = ({ onNavigate }) => {
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {analysisResult.youtubeResults.map((vid) => (
-                  <a
-                    key={vid.videoId}
-                    href={vid.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex gap-3 p-3 bg-white rounded-2xl border-[2px] border-black shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all group"
-                  >
-                    <img
-                      src={vid.thumbnail}
-                      alt={vid.title}
-                      className="w-24 h-16 object-cover rounded-xl border border-black flex-shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-black text-black line-clamp-2 group-hover:text-[var(--color-primary)] transition-colors">
-                        {vid.title}
-                      </p>
-                      <p className="text-[10px] font-bold text-black/60 mt-1">{vid.channelTitle}</p>
-                      <span className="inline-flex items-center gap-1 mt-1.5 text-[10px] font-black text-[var(--color-primary)]">
-                        Watch on YouTube <ExternalLink className="w-3 h-3" />
-                      </span>
+                {analysisResult.youtubeResults.map((vid) => {
+                  const ys = youtubeSteps[vid.videoId];
+                  const isOpen = !!ys?.steps && !ys?.collapsed;
+                  return (
+                    <div key={vid.videoId} className="bg-white rounded-2xl border-[2px] border-black shadow-[3px_3px_0px_#000] overflow-hidden">
+                      {/* Video header row */}
+                      <div className="flex gap-3 p-3">
+                        <img
+                          src={vid.thumbnail}
+                          alt={vid.title}
+                          className="w-24 h-16 object-cover rounded-xl border border-black flex-shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-black text-black line-clamp-2">{vid.title}</p>
+                          <p className="text-[10px] font-bold text-black/60 mt-1">{vid.channelTitle}</p>
+                          <a href={vid.url} target="_blank" rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 mt-1 text-[10px] font-black text-[var(--color-primary)]">
+                            Watch on YouTube <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </div>
+                      </div>
+                      {/* Get Steps button */}
+                      <button
+                        type="button"
+                        onClick={() => handleFetchYoutubeSteps(vid)}
+                        className="w-full flex items-center justify-between px-4 py-2 bg-[var(--color-background)] border-t-[2px] border-black text-xs font-black hover:bg-[var(--color-primary)] hover:text-white transition-colors cursor-pointer"
+                      >
+                        <span>{ys?.loading ? 'Generating steps…' : isOpen ? 'Hide Step-by-Step Guide' : '⚡ Get Step-by-Step Guide'}</span>
+                        {ys?.loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : isOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                      </button>
+                      {/* Steps dropdown */}
+                      {ys?.error && (
+                        <div className="px-4 py-2 text-xs font-bold text-[#FF6B6B] border-t border-black/10">{ys.error}</div>
+                      )}
+                      {isOpen && ys?.steps && (
+                        <div className="border-t-[2px] border-black/10 p-4 space-y-3 max-h-72 overflow-y-auto">
+                          {ys.steps.map((step) => (
+                            <div key={step.stepNumber} className="flex gap-3">
+                              <span className="w-6 h-6 rounded-lg bg-[var(--color-secondary)] text-white text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">
+                                {step.stepNumber}
+                              </span>
+                              <div>
+                                <p className="text-xs font-black text-black">{step.title}</p>
+                                <p className="text-xs font-bold text-black/70 mt-0.5">{step.instructions}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  </a>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

@@ -37,20 +37,23 @@ export const Profile: React.FC<ProfilePageProps> = ({ onNavigate, userId }) => {
   const loadProfile = async () => {
     setLoading(true);
     try {
+      // Determine the target user
+      let targetUser: User | null = null;
       if (isOwnProfile && currentUser) {
-        setProfileUser(currentUser);
+        targetUser = currentUser;
       } else if (userId) {
-        const other = await profileService.getUserById(userId);
-        setProfileUser(other);
+        targetUser = await profileService.getUserById(userId);
       }
+      setProfileUser(targetUser);
 
-      // Load posts by this user
-      const allPosts = await postService.getPosts();
-      const currentId = userId || currentUser?.id || 'current-user';
-      const mine = allPosts.filter(
-        (p) => p.author.id === currentId || p.author.username === profileUser?.username
-      );
-      setUserPosts(mine.length > 0 ? mine : allPosts.slice(0, 2));
+      // Load posts by this user — use targetUser directly to avoid stale closure
+      if (targetUser) {
+        const allPosts = await postService.getPosts();
+        const mine = allPosts.filter(
+          (p) => p.author.id === targetUser!.id || p.author.username === targetUser!.username
+        );
+        setUserPosts(mine);
+      }
     } finally {
       setLoading(false);
     }
@@ -88,6 +91,18 @@ export const Profile: React.FC<ProfilePageProps> = ({ onNavigate, userId }) => {
       email: data.email,
       city: data.city,
     });
+  };
+
+  const handleDeletePost = async (post: Post) => {
+    if (!window.confirm(`Are you sure you want to delete "${post.title}"?`)) return;
+    try {
+      if (currentUser) {
+        await postService.deletePost(post.id, currentUser.id);
+        setUserPosts(prev => prev.filter(p => p.id !== post.id));
+      }
+    } catch (err) {
+      alert((err as Error).message);
+    }
   };
 
   if (!profileUser) {
@@ -185,6 +200,7 @@ export const Profile: React.FC<ProfilePageProps> = ({ onNavigate, userId }) => {
             createdPosts={userPosts}
             onSelectOriginalReference={(refId) => onNavigate('craft-detail', { projectId: refId })}
             onSelectPost={() => onNavigate('community')}
+            onDeletePost={isOwnProfile ? handleDeletePost : undefined}
           />
         </div>
       )}

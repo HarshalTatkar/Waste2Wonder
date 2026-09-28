@@ -12,8 +12,8 @@ interface CommentSectionProps {
 export const CommentSection: React.FC<CommentSectionProps> = ({
   comments,
   onAddComment,
-  currentUserAvatar = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
-  currentUserName = 'Alex Rivera',
+  currentUserAvatar = '',
+  currentUserName = 'You',
 }) => {
   const [commentText, setCommentText] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -44,11 +44,14 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
 
       {/* Input box */}
       <form onSubmit={handleSubmit} className="flex items-center gap-3 mb-6">
-        <img
-          src={currentUserAvatar}
-          alt={currentUserName}
-          className="w-10 h-10 rounded-full object-cover border-[2px] border-black shadow-[2px_2px_0px_#000] shrink-0"
-        />
+        {currentUserAvatar ? (
+          <img src={currentUserAvatar} alt={currentUserName}
+            className="w-10 h-10 rounded-full object-cover border-[2px] border-black shadow-[2px_2px_0px_#000] shrink-0" />
+        ) : (
+          <div className="w-10 h-10 rounded-full border-[2px] border-black shadow-[2px_2px_0px_#000] shrink-0 bg-[var(--color-background)] flex items-center justify-center text-xl select-none">
+            🧑‍🎨
+          </div>
+        )}
         <div className="flex-1 flex gap-2">
           <input
             type="text"
@@ -86,11 +89,14 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
               key={c.id}
               className="p-4 rounded-2xl bg-white border-[2px] border-black shadow-[3px_3px_0px_#000] flex items-start gap-3"
             >
-              <img
-                src={c.avatar}
-                alt={c.author}
-                className="w-9 h-9 rounded-full object-cover border-[1.5px] border-black shrink-0"
-              />
+              {c.avatar ? (
+                <img src={c.avatar} alt={c.author}
+                  className="w-9 h-9 rounded-full object-cover border-[1.5px] border-black shrink-0" />
+              ) : (
+                <div className="w-9 h-9 rounded-full border-[1.5px] border-black shrink-0 bg-[var(--color-background)] flex items-center justify-center text-lg select-none">
+                  🧑‍🎨
+                </div>
+              )}
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <span className="font-black text-sm text-black">

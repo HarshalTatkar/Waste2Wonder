@@ -1,15 +1,18 @@
 import React from 'react';
 import { Project } from '../../types/project';
+import { Trash2 } from 'lucide-react';
 
 interface ProjectCardProps {
   project: Project;
   onSelect: (project: Project) => void;
+  onDelete?: (project: Project) => void;
   className?: string;
 }
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({
   project,
   onSelect,
+  onDelete,
   className = '',
 }) => {
   // Color fallback if not explicitly set
@@ -42,6 +45,21 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             {project.difficulty}
           </span>
         </div>
+
+        {/* Delete Button (Bottom-Right) */}
+        {onDelete && (
+          <div className="absolute bottom-2.5 right-2.5 z-10">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(project);
+              }}
+              className="p-2 bg-white border-[2px] border-[#FF6B6B] rounded-xl text-[#FF6B6B] shadow-[2px_2px_0px_#FF6B6B] hover:bg-[#FF6B6B]/10 active:translate-y-0.5 active:shadow-[0px_0px_0px_#FF6B6B] transition-all cursor-pointer"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Solid Colored Card Base - exactly matching Image 4 */}

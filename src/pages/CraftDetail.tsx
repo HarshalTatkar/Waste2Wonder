@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Project } from '../types/project';
 import { ReferenceSourceTag } from '../components/craft-detail/ReferenceSourceTag';
 import { InfoStatsRow } from '../components/craft-detail/InfoStatsRow';
@@ -11,7 +11,8 @@ import { UploadResultModal } from '../components/craft-detail/UploadResultModal'
 import { CommentSection } from '../components/community/CommentSection';
 import { Button } from '../components/common/Button';
 import { useUser } from '../context/UserContext';
-import { ArrowLeft, Sparkles } from 'lucide-react';
+import { postService } from '../services/postService';
+import { ArrowLeft, Sparkles, Trash2 } from 'lucide-react';
 import { Comment } from '../types/post';
 
 interface CraftDetailProps {
@@ -27,25 +28,18 @@ export const CraftDetail: React.FC<CraftDetailProps> = ({
   const { user, addImplementedCraft } = useUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Dedicated interactive comments state for this craft
-  const [comments, setComments] = useState<Comment[]>([
-    {
-      id: 'c-1',
-      author: 'Maya Lin',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-      text: 'Made this over the weekend! Highly recommend using heat-treated pallet wood for extra stability.',
-      date: '2 days ago',
-      likes: 14,
-    },
-    {
-      id: 'c-2',
-      author: 'Arjun Patel',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
-      text: 'Great step-by-step instructions. The safety tips on cutting were super helpful.',
-      date: 'Yesterday',
-      likes: 8,
-    },
-  ]);
+  // Comments — loaded from DB for in-app posts, local-only for others
+  const [comments, setComments] = useState<Comment[]>([]);
+  const isDbBacked = project.source === 'in_app' && project.id && !project.id.startsWith('ai-');
+
+  // Fetch comments from DB on mount for in-app posts
+  useEffect(() => {
+    if (isDbBacked) {
+      postService.getPostById(project.id).then((post) => {
+        if (post) setComments(post.comments);
+      }).catch(() => { /* ignore — will show empty comments */ });
+    }
+  }, [project.id, isDbBacked]);
 
   const isYouTube = project.source === 'youtube';
   const isInApp = project.source === 'in_app';
@@ -83,16 +77,50 @@ export const CraftDetail: React.FC<CraftDetailProps> = ({
     }
   };
 
-  const handleAddComment = (text: string) => {
-    const newComment: Comment = {
-      id: `comm-${Date.now()}`,
-      author: user?.name || 'You',
-      avatar: user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
-      text,
-      date: 'Just now',
-      likes: 0,
-    };
-    setComments((prev) => [newComment, ...prev]);
+  const handleAddComment = async (text: string) => {
+    if (isDbBacked && user) {
+      // Persist to database
+      try {
+        const newComment = await postService.addComment(project.id, text, user.id);
+        setComments((prev) => [newComment, ...prev]);
+      } catch {
+        // Fallback to local-only on failure
+        const localComment: Comment = {
+          id: `comm-${Date.now()}`,
+          author: user.name || 'You',
+          avatar: user.avatar || '',
+          text,
+          date: 'Just now',
+          likes: 0,
+        };
+        setComments((prev) => [localComment, ...prev]);
+      }
+    } else {
+      // Non-DB project — local only
+      const newComment: Comment = {
+        id: `comm-${Date.now()}`,
+        author: user?.name || 'You',
+        avatar: user?.avatar || '',
+        text,
+        date: 'Just now',
+        likes: 0,
+      };
+      setComments((prev) => [newComment, ...prev]);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!user || !project.author || user.username !== project.author.username) return;
+    if (!window.confirm("Are you sure you want to delete this post? This cannot be undone.")) return;
+    try {
+      if (isDbBacked) {
+        // use project.id as the post ID and user.id to verify ownership
+        await postService.deletePost(project.id, user.id);
+      }
+      onBack(); // Go back to feed after delete
+    } catch (err) {
+      alert((err as Error).message);
+    }
   };
 
   return (
@@ -104,6 +132,15 @@ export const CraftDetail: React.FC<CraftDetailProps> = ({
         </Button>
 
         <div className="flex items-center gap-2">
+          {user && project.author && user.username === project.author.username && (
+            <button
+              onClick={handleDelete}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FF6B6B]/10 hover:bg-[#FF6B6B]/20 text-[#FF6B6B] text-xs font-black uppercase tracking-wider rounded-lg border-[2px] border-[#FF6B6B] transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Delete
+            </button>
+          )}
           <ReferenceSourceTag
             source={project.source}
             authorName={project.author?.name}

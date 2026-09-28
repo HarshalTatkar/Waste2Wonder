@@ -93,20 +93,26 @@ export const PostPreview: React.FC<PostPreviewProps> = ({
         </p>
 
         {/* Before / After Split Preview */}
-        <div className="grid grid-cols-2 gap-2 rounded-2xl overflow-hidden border-[2.5px] border-[var(--color-text-accent-dark)] shadow-[3px_3px_0px_var(--color-text-accent-dark)] mb-4">
-          <div className="relative aspect-square bg-gray-100">
-            <img src={data.beforeImage} alt="Before" className="w-full h-full object-cover" />
-            <span className="absolute bottom-2 left-2 bg-white/90 border border-[var(--color-text-accent-dark)] px-2 py-0.5 rounded text-[10px] font-black">
-              🗑️ Before
-            </span>
+        {(data.beforeImage || data.afterImage) && (
+          <div className="grid grid-cols-2 gap-2 rounded-2xl overflow-hidden border-[2.5px] border-[var(--color-text-accent-dark)] shadow-[3px_3px_0px_var(--color-text-accent-dark)] mb-4">
+            <div className="relative aspect-square bg-gray-100">
+              {data.beforeImage
+                ? <img src={data.beforeImage} alt="Before" className="w-full h-full object-cover" />
+                : <div className="w-full h-full flex items-center justify-center text-xs font-black text-black/40">No before photo</div>}
+              <span className="absolute bottom-2 left-2 bg-white/90 border border-[var(--color-text-accent-dark)] px-2 py-0.5 rounded text-[10px] font-black">
+                🗑️ Before
+              </span>
+            </div>
+            <div className="relative aspect-square bg-gray-100">
+              {data.afterImage
+                ? <img src={data.afterImage} alt="After" className="w-full h-full object-cover" />
+                : <div className="w-full h-full flex items-center justify-center text-xs font-black text-black/40">No after photo</div>}
+              <span className="absolute bottom-2 left-2 bg-[var(--color-primary)] text-white border border-[var(--color-text-accent-dark)] px-2 py-0.5 rounded text-[10px] font-black">
+                ✨ After
+              </span>
+            </div>
           </div>
-          <div className="relative aspect-square bg-gray-100">
-            <img src={data.afterImage} alt="After" className="w-full h-full object-cover" />
-            <span className="absolute bottom-2 left-2 bg-[var(--color-primary)] text-white border border-[var(--color-text-accent-dark)] px-2 py-0.5 rounded text-[10px] font-black">
-              ✨ After
-            </span>
-          </div>
-        </div>
+        )}
 
         {/* Info stats */}
         <div className="p-3.5 bg-[var(--color-background)] rounded-xl border-[2px] border-[var(--color-text-accent-dark)] flex flex-wrap items-center justify-between gap-2 text-xs font-black">

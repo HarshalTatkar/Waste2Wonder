@@ -23,7 +23,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
       <Navbar activeTab={activeTab} onNavigate={onNavigate} />
 
       {/* Main Content Area */}
-      <main className="flex-1 relative z-10">
+      <main className="flex-1 relative z-20">
         {children}
       </main>
 

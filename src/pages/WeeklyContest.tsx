@@ -26,29 +26,9 @@ export const WeeklyContest: React.FC<WeeklyContestProps> = ({ onNavigate }) => {
   const [uploadEntry, setUploadEntry] = useState<ContestEntry | null>(null);
   const [activeCommentsEntry, setActiveCommentsEntry] = useState<ContestEntry | null>(null);
 
-  // Dynamic comments mapping per entry
-  const [entryComments, setEntryComments] = useState<Record<string, Comment[]>>({
-    'contest-1': [
-      {
-        id: 'c-1',
-        author: 'Alex Rivera',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
-        text: 'The rope suspension idea is super clean. Did you need wall anchors?',
-        date: '1 day ago',
-        likes: 5,
-      },
-    ],
-    'contest-2': [
-      {
-        id: 'c-2',
-        author: 'Maya Lin',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-        text: 'The colors in sunlight look incredible! Going to try with green soda bottles.',
-        date: '2 days ago',
-        likes: 9,
-      },
-    ],
-  });
+  // Dynamic comments — loaded from DB per entry's underlying post
+  const [entryComments, setEntryComments] = useState<Record<string, Comment[]>>({});
+  const [commentsLoading, setCommentsLoading] = useState(false);
 
   useEffect(() => {
     loadContest();
@@ -100,21 +80,45 @@ export const WeeklyContest: React.FC<WeeklyContestProps> = ({ onNavigate }) => {
     await loadContest();
   };
 
-  const handleAddComment = (text: string) => {
-    if (!activeCommentsEntry) return;
-    const newComm: Comment = {
-      id: `comm-${Date.now()}`,
-      author: user?.name || 'You',
-      avatar: user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
-      text,
-      date: 'Just now',
-      likes: 0,
-    };
+  // Load comments from DB when opening the comment modal
+  const handleOpenComments = async (entry: ContestEntry) => {
+    setActiveCommentsEntry(entry);
+    setCommentsLoading(true);
+    try {
+      const post = await postService.getPostById(entry.postId);
+      if (post) {
+        setEntryComments((prev) => ({ ...prev, [entry.id]: post.comments }));
+      }
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
 
-    setEntryComments((prev) => ({
-      ...prev,
-      [activeCommentsEntry.id]: [newComm, ...(prev[activeCommentsEntry.id] || [])],
-    }));
+  const handleAddComment = async (text: string) => {
+    if (!activeCommentsEntry || !user) return;
+
+    try {
+      // Persist to DB
+      const newComment = await postService.addComment(activeCommentsEntry.postId, text, user.id);
+      setEntryComments((prev) => ({
+        ...prev,
+        [activeCommentsEntry.id]: [newComment, ...(prev[activeCommentsEntry.id] || [])],
+      }));
+    } catch {
+      // Fallback to local-only
+      const newComm: Comment = {
+        id: `comm-${Date.now()}`,
+        author: user.name || 'You',
+        avatar: user.avatar || '',
+        text,
+        date: 'Just now',
+        likes: 0,
+      };
+      setEntryComments((prev) => ({
+        ...prev,
+        [activeCommentsEntry.id]: [newComm, ...(prev[activeCommentsEntry.id] || [])],
+      }));
+    }
 
     // Increment count on entry
     setEntries((prev) =>
@@ -213,7 +217,7 @@ export const WeeklyContest: React.FC<WeeklyContestProps> = ({ onNavigate }) => {
         initialEntries={entries}
         onVote={handleVote}
         onTryIt={handleTryItClick}
-        onOpenComments={(entry) => setActiveCommentsEntry(entry)}
+        onOpenComments={handleOpenComments}
       />
 
       {/* Step-by-Step Implementation Process Modal */}

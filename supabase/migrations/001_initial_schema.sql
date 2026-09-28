@@ -291,23 +291,6 @@ for each row execute function public.check_contest_week_limit();
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
-  insert into public.users (id, name, username, avatar_url, email_hint)
-  values (
-    NEW.id,
-    coalesce(NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)),
-    lower(replace(coalesce(NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)), ' ', '_'))
-      || '_' || substr(NEW.id::text, 1, 4),
-    coalesce(NEW.raw_user_meta_data->>'avatar_url', '')
-  )
-  on conflict (id) do nothing;
-  return NEW;
-end;
-$$;
-
--- Fix: remove email_hint column (not in schema), use valid columns only
-create or replace function public.handle_new_user()
-returns trigger language plpgsql security definer set search_path = public as $$
-begin
   insert into public.users (id, name, username, avatar_url)
   values (
     NEW.id,
@@ -343,6 +326,11 @@ $$;
 create or replace function public.increment_user_stat(uid uuid, stat_col text)
 returns void language plpgsql security definer as $$
 begin
+  -- Strict whitelist to prevent SQL injection since %I can still be abused to modify arbitrary columns
+  if stat_col not in ('followers_count', 'following_count', 'total_likes', 'total_implementations', 'total_views', 'total_posts') then
+    raise exception 'Invalid stat column %', stat_col;
+  end if;
+  
   execute format('update public.users set %I = %I + 1 where id = $1', stat_col, stat_col) using uid;
 end;
 $$;

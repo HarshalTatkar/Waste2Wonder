@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ImplementedWorkItem } from '../../types/user';
 import { Post } from '../../types/post';
-import { Heart, MessageCircle, Eye, CheckCircle2, ExternalLink, Calendar, Layers, Sparkles } from 'lucide-react';
+import { Heart, MessageCircle, Eye, CheckCircle2, ExternalLink, Calendar, Layers, Sparkles, Trash2 } from 'lucide-react';
 import { formatCount } from '../../utils/formatters';
 
 interface MyProjectsGridProps {
@@ -9,6 +9,7 @@ interface MyProjectsGridProps {
   createdPosts: Post[];
   onSelectOriginalReference?: (refId: string) => void;
   onSelectPost?: (post: Post) => void;
+  onDeletePost?: (post: Post) => void;
 }
 
 export const MyProjectsGrid: React.FC<MyProjectsGridProps> = ({
@@ -16,6 +17,7 @@ export const MyProjectsGrid: React.FC<MyProjectsGridProps> = ({
   createdPosts,
   onSelectOriginalReference,
   onSelectPost,
+  onDeletePost,
 }) => {
   const [activeTab, setActiveTab] = useState<'implemented' | 'created'>('implemented');
 
@@ -135,6 +137,20 @@ export const MyProjectsGrid: React.FC<MyProjectsGridProps> = ({
                 <span className="absolute top-2 right-2 px-2 py-0.5 bg-[var(--color-secondary)] text-white text-[10px] font-black rounded-lg">
                   {post.difficulty}
                 </span>
+
+                {onDeletePost && (
+                  <div className="absolute bottom-2 right-2 z-10">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeletePost(post);
+                      }}
+                      className="p-1.5 bg-white border-[2px] border-[#FF6B6B] rounded-lg text-[#FF6B6B] shadow-[2px_2px_0px_#FF6B6B] hover:bg-[#FF6B6B]/10 active:translate-y-0.5 active:shadow-[0px_0px_0px_#FF6B6B] transition-all cursor-pointer"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="p-4 flex-1 flex flex-col justify-between">

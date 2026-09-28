@@ -3,6 +3,7 @@ import { ProjectCard } from '../components/explore/ProjectCard';
 import { FilterBar } from '../components/explore/FilterBar';
 import { useFilter } from '../hooks/useFilter';
 import { Project } from '../types/project';
+import { postService, postToProject } from '../services/postService';
 import mockProjectsData from '../data/mockProjects.json';
 import { Compass, Sparkles, FolderX } from 'lucide-react';
 import { Button } from '../components/common/Button';
@@ -18,7 +19,26 @@ export const ExploreIdeas: React.FC<ExploreIdeasProps> = ({
   initialMaterial,
   initialMaterials,
 }) => {
-  const [projects] = useState<Project[]>(mockProjectsData as unknown as Project[]);
+  const [projects, setProjects] = useState<Project[]>(mockProjectsData as unknown as Project[]);
+
+  // Fetch real posts from DB and merge with mock seed data
+  useEffect(() => {
+    (async () => {
+      try {
+        const posts = await postService.getPosts();
+        const liveProjects = posts.map(postToProject);
+        // Merge: real DB posts first, then mock data with duplicate IDs removed
+        const liveIds = new Set(liveProjects.map((p) => p.id));
+        const dedupedMock = (mockProjectsData as unknown as Project[]).filter(
+          (p) => !liveIds.has(p.id)
+        );
+        setProjects([...liveProjects, ...dedupedMock]);
+      } catch {
+        // If DB fetch fails, keep the mock data as fallback
+      }
+    })();
+  }, []);
+
   const {
     filters,
     setFilterField,

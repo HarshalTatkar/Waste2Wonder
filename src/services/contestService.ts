@@ -39,7 +39,7 @@ export const contestService = {
     const week = getCurrentWeekNumber();
     const { data, error } = await supabase
       .from('contest_entries')
-      .select('*, posts(id, title, description, before_image, after_image, materials, users(id, name, username, avatar_url))')
+      .select('*, posts!contest_entries_post_id_fkey(id, title, description, before_image, after_image, materials, users!posts_author_id_fkey(id, name, username, avatar_url))')
       .eq('week_number', week)
       .order('display_order', { ascending: true });
 
@@ -52,9 +52,9 @@ export const contestService = {
     const week = getCurrentWeekNumber();
     const { data, error } = await supabase
       .from('contest_entries')
-      .select('*, posts(id, title, description, before_image, after_image, materials, users(id, name, username, avatar_url))')
+      .select('*, posts!contest_entries_post_id_fkey(id, title, description, before_image, after_image, materials, users!posts_author_id_fkey(id, name, username, avatar_url))')
       .eq('week_number', week)
-      .order('display_order', { ascending: true });   // display_order is rotated nightly by pg_cron
+      .order('display_order', { ascending: true });
 
     if (error) throw new Error(error.message);
     return (data ?? []).map(rowToEntry);
@@ -83,7 +83,7 @@ export const contestService = {
         week_number: week,
         display_order: (count ?? 0) + 1,
       })
-      .select('*, posts(id, title, description, before_image, after_image, materials, users(id, name, username, avatar_url))')
+      .select('*, posts!contest_entries_post_id_fkey(id, title, description, before_image, after_image, materials, users!posts_author_id_fkey(id, name, username, avatar_url))')
       .single();
 
     if (error || !data) throw new Error(error?.message ?? 'Failed to submit contest entry');
@@ -133,10 +133,7 @@ export const contestService = {
   },
 
   incrementContestViews: async (entryId: string): Promise<void> => {
-    await supabase.from('contest_entries')
-      .update({ views_count: supabase.rpc('_noop') as unknown as number }) // use raw increment below
-      .eq('id', entryId);
-    // Use a direct RPC for atomic increment
+    // Atomic increment via server-side RPC — avoids read-modify-write races
     await supabase.rpc('increment_contest_views', { entry_id: entryId });
   },
 };

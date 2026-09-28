@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { User, ImplementedWorkItem } from '../types/user';
 import { profileService } from '../services/profileService';
 import { postService } from '../services/postService';
@@ -28,7 +28,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!isAuthenticated || !userId) {
       setUser(null);
       setLoading(false);
@@ -43,12 +43,12 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAuthenticated, userId]);
 
   // Reload user whenever auth state changes
   useEffect(() => {
     load();
-  }, [isAuthenticated, userId]);
+  }, [load]);
 
   const refreshUser = async () => {
     await load();

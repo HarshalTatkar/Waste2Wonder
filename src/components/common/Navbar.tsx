@@ -72,11 +72,11 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate }) => {
                   activeTab === 'profile' ? 'ring-2 ring-black bg-[#98EECC]' : ''
                 }`}
               >
-                <img
-                  src={user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'}
-                  alt={user?.name || 'Profile'}
-                  className="w-5 h-5 rounded-full object-cover border border-black"
-                />
+                {user?.avatar ? (
+                  <img src={user.avatar} alt={user.name || 'Profile'} className="w-5 h-5 rounded-full object-cover border border-black" />
+                ) : (
+                  <span className="text-base leading-none select-none">🧑‍🎨</span>
+                )}
                 <span className="truncate max-w-[90px]">{user?.name?.split(' ')[0] || 'Profile'}</span>
               </button>
               <button

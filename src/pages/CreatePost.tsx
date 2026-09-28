@@ -4,7 +4,7 @@ import { ProcessImagesUploader } from '../components/create-post/ProcessImagesUp
 import { MaterialsForm } from '../components/create-post/MaterialsForm';
 import { PostPreview } from '../components/create-post/PostPreview';
 import { useUser } from '../context/UserContext';
-import { postService } from '../services/postService';
+import { postService, storageService } from '../services/postService';
 import { contestService } from '../services/contestService';
 import confetti from 'canvas-confetti';
 
@@ -20,39 +20,22 @@ export const CreatePost: React.FC<CreatePostProps> = ({
   const { user, refreshUser } = useUser();
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [publishing, setPublishing] = useState<boolean>(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
 
   // Form State
-  const [beforeImage, setBeforeImage] = useState<string>(
-    'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=800&q=80'
-  );
-  const [afterImage, setAfterImage] = useState<string>(
-    'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80'
-  );
-  const [processImages, setProcessImages] = useState<string[]>([
-    'https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=800&q=80',
-  ]);
-  const [steps, setSteps] = useState([
-    {
-      stepNumber: 1,
-      title: 'Cut Denim Leg Sleeves',
-      instructions: 'Measure 2 inches below the pocket line and slice straight across with fabric shears.',
-    },
-    {
-      stepNumber: 2,
-      title: 'Double Stitch Bottom Hem',
-      instructions: 'Turn inside out and run a reinforced zigzag seam across the base opening.',
-    },
-  ]);
+  const [beforeImage, setBeforeImage] = useState<string>('');
+  const [afterImage, setAfterImage] = useState<string>('');
+  const [processImages, setProcessImages] = useState<string[]>([]);
+  const [steps, setSteps] = useState<{ stepNumber: number; title: string; instructions: string }[]>([]);
 
   const [formData, setFormData] = useState({
-    title: 'Reinforced Denim Market Carryall',
-    description: 'Repurposed distressed work jeans into an ultra-tough reusable grocery tote with lined interior pockets.',
-    materials: ['1 pair of distressed jeans', 'Polyester thread', 'Cotton lining fabric'],
-    cost: '$2.00',
-    timeTaken: '1 hour 20 mins',
-    difficulty: 'Medium' as 'Easy' | 'Medium' | 'Hard',
-    precautions: ['Use denim needle size 16 to avoid bending on triple seams'],
+    title: '',
+    description: '',
+    materials: [] as string[],
+    cost: '',
+    timeTaken: '',
+    difficulty: 'Easy' as 'Easy' | 'Medium' | 'Hard',
+    precautions: [] as string[],
     isContestEntry: isContestEntryInitial,
   });
 
@@ -74,15 +57,24 @@ export const CreatePost: React.FC<CreatePostProps> = ({
   const handlePublish = async () => {
     if (!user) return;
     setPublishing(true);
+    setPublishError(null);
 
     try {
-      // Create post via postService (authorId replaces the author object)
+      // 1. Upload local blob images to Supabase Storage
+      const finalBefore = await storageService.uploadImage(beforeImage, `before_${user.id}`);
+      const finalAfter = await storageService.uploadImage(afterImage, `after_${user.id}`);
+      
+      const finalProcess = await Promise.all(
+        processImages.map((img, i) => storageService.uploadImage(img, `process_${user.id}_${i}`))
+      );
+
+      // 2. Create post via postService (authorId replaces the author object)
       const newPost = await postService.createPost({
         title: formData.title,
         description: formData.description,
-        beforeImage,
-        afterImage,
-        processImages,
+        beforeImage: finalBefore,
+        afterImage: finalAfter,
+        processImages: finalProcess,
         materials: formData.materials,
         cost: formData.cost,
         timeTaken: formData.timeTaken,
@@ -113,6 +105,8 @@ export const CreatePost: React.FC<CreatePostProps> = ({
 
       await refreshUser();
       onNavigate('community');
+    } catch (err) {
+      setPublishError((err as Error).message || 'Failed to publish post. Please try again.');
     } finally {
       setPublishing(false);
     }
@@ -120,6 +114,17 @@ export const CreatePost: React.FC<CreatePostProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-left">
+      {/* Publish Error Banner */}
+      {publishError && (
+        <div className="mb-6 p-4 bg-[#FF6B6B]/20 border-[2px] border-[#FF6B6B] rounded-xl flex items-start gap-2">
+          <span className="text-sm">⚠️</span>
+          <div>
+            <p className="text-xs font-black text-[var(--color-text-accent-dark)]">Publishing failed</p>
+            <p className="text-xs font-bold text-[var(--color-text-accent-dark)]/80 mt-0.5">{publishError}</p>
+          </div>
+        </div>
+      )}
+
       {/* Step Indicator Bar */}
       <div className="mb-8">
         <div className="flex items-center justify-between gap-2 max-w-xl mx-auto mb-4">
@@ -193,9 +198,9 @@ export const CreatePost: React.FC<CreatePostProps> = ({
             steps,
           }}
           author={{
-            name: user?.name || 'Alex Rivera',
-            username: user?.username || 'eco_crafter_alex',
-            avatar: user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
+            name: user?.name || '',
+            username: user?.username || '',
+            avatar: user?.avatar || '',
           }}
           publishing={publishing}
           onPublish={handlePublish}

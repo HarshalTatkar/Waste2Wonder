@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { Post, Comment } from '../types/post';
+import { Project } from '../types/project';
 
 // ── Shape helpers ─────────────────────────────────────────────
 // Supabase returns snake_case; our types use camelCase.
@@ -51,7 +52,7 @@ export const postService = {
   getPosts: async (): Promise<Post[]> => {
     const { data, error } = await supabase
       .from('posts')
-      .select('*, users(id, name, username, avatar_url)')
+      .select('*, users!posts_author_id_fkey(id, name, username, avatar_url)')
       .order('created_at', { ascending: false });
 
     if (error) throw new Error(error.message);
@@ -61,7 +62,7 @@ export const postService = {
   getPostById: async (id: string): Promise<Post | undefined> => {
     const { data, error } = await supabase
       .from('posts')
-      .select('*, users(id, name, username, avatar_url)')
+      .select('*, users!posts_author_id_fkey(id, name, username, avatar_url)')
       .eq('id', id)
       .single();
 
@@ -101,7 +102,7 @@ export const postService = {
         is_contest_entry: newPost.isContestEntry ?? false,
         source: 'in_app',
       })
-      .select('*, users(id, name, username, avatar_url)')
+      .select('*, users!posts_author_id_fkey(id, name, username, avatar_url)')
       .single();
 
     if (error || !data) throw new Error(error?.message ?? 'Failed to create post');
@@ -110,6 +111,17 @@ export const postService = {
     await supabase.rpc('increment_user_stat', { uid: newPost.authorId, stat_col: 'total_posts' });
 
     return rowToPost(data as Record<string, unknown>);
+  },
+
+  deletePost: async (postId: string, authorId: string): Promise<void> => {
+    // Delete the post. Cascade deletes (if set in DB) will handle likes/comments/etc.
+    const { error } = await supabase
+      .from('posts')
+      .delete()
+      .eq('id', postId)
+      .eq('author_id', authorId);
+
+    if (error) throw new Error(error.message || 'Failed to delete post');
   },
 
   likePost: async (postId: string, userId: string): Promise<{ likes: number; liked: boolean }> => {
@@ -160,8 +172,9 @@ export const postService = {
   },
 
   incrementImplementationCount: async (postId: string): Promise<number> => {
-    // This is also handled by the DB trigger in handle_new_implementation()
-    // but we expose it for direct calls from UserContext
+    // The DB trigger handle_new_implementation() is the authoritative source
+    // for incrementing this count when a user_implementation row is inserted.
+    // This method just returns the current count for UI synchronisation.
     const { data } = await supabase
       .from('posts')
       .select('implementations_count')
@@ -178,7 +191,7 @@ export const postService = {
   searchPosts: async (query: string): Promise<Post[]> => {
     const { data, error } = await supabase
       .from('posts')
-      .select('*, users(id, name, username, avatar_url)')
+      .select('*, users!posts_author_id_fkey(id, name, username, avatar_url)')
       .textSearch('fts', query, { type: 'websearch' })
       .limit(6);
 
@@ -203,4 +216,60 @@ export const postService = {
       })
       .subscribe();
   },
+};
+
+// ── Post → Project shape mapper (shared) ─────────────────────
+export function postToProject(post: Post): Project {
+  return {
+    id: post.id,
+    title: post.title,
+    description: post.description,
+    source: 'in_app',
+    material: post.materials[0] || '',
+    difficulty: post.difficulty,
+    timeRequired: post.timeTaken,
+    estimatedCost: post.cost,
+    materialsNeeded: post.materials,
+    precautions: post.precautions,
+    steps: post.steps.map((s) => ({
+      stepNumber: s.stepNumber,
+      title: s.title,
+      instructions: s.instructions,
+    })),
+    coverImage: post.afterImage,
+    likes: post.likes,
+    commentsCount: post.comments.length,
+    views: post.views,
+    implementationsCount: post.implementationsCount,
+    createdAt: post.createdAt,
+    tags: post.materials,
+  };
+}
+
+export const storageService = {
+  uploadImage: async (urlOrBlob: string, pathPrefix: string): Promise<string> => {
+    // If it's already an external URL (e.g. Unsplash sample), just return it
+    if (urlOrBlob.startsWith('http') && !urlOrBlob.startsWith('blob:')) {
+      return urlOrBlob;
+    }
+
+    try {
+      const response = await fetch(urlOrBlob);
+      const blob = await response.blob();
+      const fileExt = blob.type.split('/')[1] || 'jpg';
+      const fileName = `${pathPrefix}_${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+
+      const { error } = await supabase.storage.from('post-images').upload(fileName, blob, {
+        contentType: blob.type,
+      });
+
+      if (error) throw error;
+
+      const { data } = supabase.storage.from('post-images').getPublicUrl(fileName);
+      return data.publicUrl;
+    } catch (e) {
+      console.error('Failed to upload image', e);
+      return urlOrBlob; // Fallback to whatever it was
+    }
+  }
 };

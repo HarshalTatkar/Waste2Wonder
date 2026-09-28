@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { PostCard } from '../components/community/PostCard';
 import { CommentSection } from '../components/community/CommentSection';
 import { Modal } from '../components/common/Modal';
@@ -18,6 +18,7 @@ export const Community: React.FC<CommunityProps> = ({ onNavigate }) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCommentsPost, setActiveCommentsPost] = useState<Post | null>(null);
+  const [commentsLoading, setCommentsLoading] = useState(false);
 
   // States for process guide modal and work attachment modal
   const [processPost, setProcessPost] = useState<Post | null>(null);
@@ -36,10 +37,22 @@ export const Community: React.FC<CommunityProps> = ({ onNavigate }) => {
     }
   };
 
-  const handleLike = async (postId: string) => {
+  const handleLike = async (postId: string): Promise<{ likes: number; liked: boolean } | void> => {
     if (!user) return;
-    await postService.likePost(postId, user.id);
+    return postService.likePost(postId, user.id);
   };
+
+  // Fetch fresh comments from DB every time the modal opens
+  const openComments = useCallback(async (post: Post) => {
+    setActiveCommentsPost(post);
+    setCommentsLoading(true);
+    try {
+      const fresh = await postService.getPostById(post.id);
+      if (fresh) setActiveCommentsPost(fresh);
+    } finally {
+      setCommentsLoading(false);
+    }
+  }, []);
 
   const handleAddComment = async (text: string) => {
     if (!activeCommentsPost || !user) return;
@@ -100,28 +113,23 @@ export const Community: React.FC<CommunityProps> = ({ onNavigate }) => {
       description: post.description,
       creatorName: post.author.name,
       materialsNeeded: post.materials,
-      steps: [
-        {
-          stepNumber: 1,
-          title: 'Prepare Raw Material',
-          instructions: 'Clean and inspect all salvage items for structural integrity before assembling.',
-        },
-        {
-          stepNumber: 2,
-          title: 'Shape & Fabricate',
-          instructions: 'Measure precisely, make cuts with designated safety tools, and dry-fit all connecting seams.',
-        },
-        {
-          stepNumber: 3,
-          title: 'Join & Polish',
-          instructions: 'Fasten components securely with glue, stitches, or screws and let finish set before use.',
-        },
+      steps: post.steps.length > 0 ? post.steps : [
+        { stepNumber: 1, title: 'Follow the creator\'s guide', instructions: post.description || 'See post description for instructions.' },
       ],
-      precautions: [
-        'Wear work gloves when handling sharp recycled metal or plastic edges.',
-        'Always cut away from fingers on a secure mat.',
-      ],
+      precautions: post.precautions.length > 0 ? post.precautions : ['Follow safe crafting practices.'],
     };
+  };
+
+  const handleDeletePost = async (post: Post) => {
+    if (!window.confirm(`Are you sure you want to delete "${post.title}"?`)) return;
+    try {
+      if (user) {
+        await postService.deletePost(post.id, user.id);
+        setPosts(prev => prev.filter(p => p.id !== post.id));
+      }
+    } catch (err) {
+      alert((err as Error).message);
+    }
   };
 
   return (
@@ -157,8 +165,9 @@ export const Community: React.FC<CommunityProps> = ({ onNavigate }) => {
             key={post.id}
             post={post}
             onLike={handleLike}
-            onOpenComments={(p) => setActiveCommentsPost(p)}
+            onOpenComments={openComments}
             onTryIt={handleTryItClick}
+            onDelete={user?.username === post.author.username ? handleDeletePost : undefined}
           />
         ))}
       </div>

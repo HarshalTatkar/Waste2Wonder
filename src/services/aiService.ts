@@ -187,7 +187,7 @@ export const aiService = {
   /**
    * Extracts a full craft tutorial from a YouTube URL using Gemini.
    */
-  generateStepsFromYouTube: async (youtubeUrl: string): Promise<{
+  generateStepsFromYouTube: async (youtubeUrl: string, youtubeTitle: string): Promise<{
     title: string;
     description: string;
     difficulty: 'Easy' | 'Medium' | 'Hard';
@@ -197,7 +197,7 @@ export const aiService = {
     precautions: string[];
     steps: { stepNumber: number; title: string; instructions: string }[];
   }> => {
-    return callEdgeFunction({ task: 'generateSteps', youtubeUrl });
+    return callEdgeFunction({ task: 'generateSteps', youtubeUrl, youtubeTitle });
   },
 
   /**
@@ -229,26 +229,18 @@ export const aiService = {
   generateFullCraft: async (
     materialLabel: string
   ): Promise<Project & { inProgressImages: string[]; finalOutputImage: string }> => {
-    // Run craft guide generation and image generation in parallel
-    const [craftGuide, { images: generatedImages }] = await Promise.all([
-      callEdgeFunction<{
-        title: string;
-        description: string;
-        difficulty: 'Easy' | 'Medium' | 'Hard';
-        timeRequired: string;
-        estimatedCost: string;
-        wasteSaved: string;
-        materialsNeeded: string[];
-        precautions: string[];
-        steps: { stepNumber: number; title: string; instructions: string }[];
-        tags: string[];
-      }>({ task: 'generateCraft', material: materialLabel }),
-      callEdgeFunction<{ images: string[] }>({
-        task: 'generateImages',
-        material: materialLabel,
-        craftDescription: materialLabel, // use material label as fallback; description not yet known
-      }),
-    ]);
+    const craftGuide = await callEdgeFunction<{
+      title: string;
+      description: string;
+      difficulty: 'Easy' | 'Medium' | 'Hard';
+      timeRequired: string;
+      estimatedCost: string;
+      wasteSaved: string;
+      materialsNeeded: string[];
+      precautions: string[];
+      steps: { stepNumber: number; title: string; instructions: string }[];
+      tags: string[];
+    }>({ task: 'generateCraft', material: materialLabel });
 
     return {
       id: `ai-${Date.now()}`,
@@ -264,9 +256,9 @@ export const aiService = {
       precautions: craftGuide.precautions,
       steps: craftGuide.steps,
       tags: craftGuide.tags,
-      coverImage: generatedImages[0] || '',
-      finalOutputImage: generatedImages[0] || '',
-      inProgressImages: generatedImages.slice(1),
+      coverImage: '',
+      finalOutputImage: '',
+      inProgressImages: [],
       likes: 0,
       commentsCount: 0,
       views: 0,
