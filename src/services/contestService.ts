@@ -18,7 +18,8 @@ function rowToEntry(row: Record<string, unknown>): ContestEntry {
     beforeImage: (post?.before_image as string) || '',
     afterImage: (post?.after_image as string) || '',
     materialType: ((post?.materials as string[]) || [''])[0] || '',
-    likes: (row.likes_count as number) || 0,
+    // Use true likes_count from the post if available to avoid stale counts
+    likes: (post?.likes_count as number) ?? (row.likes_count as number) ?? 0,
     commentsCount: (row.comments_count as number) || 0,
     views: (row.views_count as number) || 0,
     weekNumber: row.week_number as number,
@@ -39,7 +40,7 @@ export const contestService = {
     const week = getCurrentWeekNumber();
     const { data, error } = await supabase
       .from('contest_entries')
-      .select('*, posts!contest_entries_post_id_fkey(id, title, description, before_image, after_image, materials, users!posts_author_id_fkey(id, name, username, avatar_url))')
+      .select('*, posts!contest_entries_post_id_fkey(id, title, description, before_image, after_image, materials, likes_count, users!posts_author_id_fkey(id, name, username, avatar_url))')
       .eq('week_number', week)
       .order('display_order', { ascending: true });
 
@@ -52,7 +53,7 @@ export const contestService = {
     const week = getCurrentWeekNumber();
     const { data, error } = await supabase
       .from('contest_entries')
-      .select('*, posts!contest_entries_post_id_fkey(id, title, description, before_image, after_image, materials, users!posts_author_id_fkey(id, name, username, avatar_url))')
+      .select('*, posts!contest_entries_post_id_fkey(id, title, description, before_image, after_image, materials, likes_count, users!posts_author_id_fkey(id, name, username, avatar_url))')
       .eq('week_number', week)
       .order('display_order', { ascending: true });
 
@@ -83,7 +84,7 @@ export const contestService = {
         week_number: week,
         display_order: (count ?? 0) + 1,
       })
-      .select('*, posts!contest_entries_post_id_fkey(id, title, description, before_image, after_image, materials, users!posts_author_id_fkey(id, name, username, avatar_url))')
+      .select('*, posts!contest_entries_post_id_fkey(id, title, description, before_image, after_image, materials, likes_count, users!posts_author_id_fkey(id, name, username, avatar_url))')
       .single();
 
     if (error || !data) throw new Error(error?.message ?? 'Failed to submit contest entry');

@@ -7,6 +7,7 @@ import { ImplementationProcessModal, ProcessModalCraft } from '../components/com
 import { CommentSection } from '../components/community/CommentSection';
 import { Modal } from '../components/common/Modal';
 import { contestService } from '../services/contestService';
+import { postService } from '../services/postService';
 import { ContestEntry } from '../types/contestEntry';
 import { useUser } from '../context/UserContext';
 import { Trophy, PlusCircle } from 'lucide-react';
