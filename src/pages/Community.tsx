@@ -37,16 +37,13 @@ export const Community: React.FC<CommunityProps> = ({ onNavigate }) => {
   };
 
   const handleLike = async (postId: string) => {
-    await postService.likePost(postId);
+    if (!user) return;
+    await postService.likePost(postId, user.id);
   };
 
   const handleAddComment = async (text: string) => {
     if (!activeCommentsPost || !user) return;
-    const newComment = await postService.addComment(activeCommentsPost.id, text, {
-      name: user.name,
-      username: user.username,
-      avatar: user.avatar,
-    });
+    const newComment = await postService.addComment(activeCommentsPost.id, text, user.id);
     setActiveCommentsPost({
       ...activeCommentsPost,
       comments: [newComment, ...activeCommentsPost.comments],

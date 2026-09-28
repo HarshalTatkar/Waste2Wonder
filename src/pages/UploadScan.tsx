@@ -8,7 +8,7 @@ import { Button } from '../components/common/Button';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { aiService, ImageAnalysisResult } from '../services/aiService';
 import { Project } from '../types/project';
-import { Sparkles, Camera, CheckCircle2, RotateCcw, AlertCircle, ArrowRight, HelpCircle } from 'lucide-react';
+import { Sparkles, Camera, RotateCcw, AlertCircle, HelpCircle, PlayCircle, ExternalLink, Wand2 } from 'lucide-react';
 
 interface UploadScanProps {
   onNavigate: (page: string, params?: any) => void;
@@ -18,7 +18,10 @@ export const UploadScan: React.FC<UploadScanProps> = ({ onNavigate }) => {
   const { images, error, addFiles, removeImage, clearImages } = useImageUpload(4);
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<ImageAnalysisResult | null>(null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [showChatbot, setShowChatbot] = useState(false);
+  const [generatingCraft, setGeneratingCraft] = useState(false);
+  const [generatedCraft, setGeneratedCraft] = useState<Project | null>(null);
 
   // Quick preset sample photos for instant testing
   const samplePresets = [
@@ -50,19 +53,43 @@ export const UploadScan: React.FC<UploadScanProps> = ({ onNavigate }) => {
     if (images.length === 0) return;
     setAnalyzing(true);
     setAnalysisResult(null);
+    setAnalysisError(null);
 
     try {
       const res = await aiService.identifyImage(images.map((i) => i.file));
-      setAnalysisResult(res);
+      // Normalise — guard every array field so a partial API response never crashes the render
+      setAnalysisResult({
+        ...res,
+        suggestedTags:      Array.isArray(res.suggestedTags)      ? res.suggestedTags      : [],
+        matchedProjects:    Array.isArray(res.matchedProjects)    ? res.matchedProjects    : [],
+        youtubeResults:     Array.isArray(res.youtubeResults)     ? res.youtubeResults     : [],
+      });
+    } catch (err) {
+      setAnalysisError((err as Error).message || 'Analysis failed. Please try again.');
     } finally {
       setAnalyzing(false);
+    }
+  };
+
+  const handleGenerateCraft = async () => {
+    if (!analysisResult) return;
+    setGeneratingCraft(true);
+    try {
+      const craft = await aiService.generateFullCraft(analysisResult.label);
+      setGeneratedCraft(craft);
+    } catch (err) {
+      setAnalysisError((err as Error).message);
+    } finally {
+      setGeneratingCraft(false);
     }
   };
 
   const handleReset = () => {
     clearImages();
     setAnalysisResult(null);
+    setAnalysisError(null);
     setShowChatbot(false);
+    setGeneratedCraft(null);
   };
 
   return (
@@ -109,6 +136,19 @@ export const UploadScan: React.FC<UploadScanProps> = ({ onNavigate }) => {
           {error && (
             <div className="p-3 bg-[#FF6B6B]/20 border-[2px] border-[#FF6B6B] rounded-xl text-xs font-black text-[var(--color-text-accent-dark)]">
               {error}
+            </div>
+          )}
+
+          {analysisError && (
+            <div className="flex items-start gap-2 p-4 bg-[#FF6B6B]/20 border-[2px] border-[#FF6B6B] rounded-xl">
+              <AlertCircle className="w-4 h-4 text-[#FF6B6B] mt-0.5 shrink-0" />
+              <div>
+                <p className="text-xs font-black text-[var(--color-text-accent-dark)]">Analysis failed</p>
+                <p className="text-xs font-bold text-[var(--color-text-accent-dark)]/80 mt-0.5">{analysisError}</p>
+                <p className="text-xs font-bold text-[var(--color-text-accent-dark)]/60 mt-1">
+                  Make sure the Edge Function is deployed: <code className="bg-black/10 px-1 rounded">supabase functions deploy analyze-waste</code>
+                </p>
+              </div>
             </div>
           )}
 
@@ -202,6 +242,45 @@ export const UploadScan: React.FC<UploadScanProps> = ({ onNavigate }) => {
             />
           )}
 
+          {/* YouTube Tutorial Links */}
+          {analysisResult.youtubeResults.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <PlayCircle className="w-5 h-5 text-[#FF0000]" />
+                <h3 className="text-2xl font-black text-black">YouTube Tutorials</h3>
+                <span className="px-2 py-0.5 bg-white border-[2px] border-black rounded-lg text-xs font-black shadow-[2px_2px_0px_#000]">
+                  {analysisResult.youtubeResults.length} Videos
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {analysisResult.youtubeResults.map((vid) => (
+                  <a
+                    key={vid.videoId}
+                    href={vid.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex gap-3 p-3 bg-white rounded-2xl border-[2px] border-black shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all group"
+                  >
+                    <img
+                      src={vid.thumbnail}
+                      alt={vid.title}
+                      className="w-24 h-16 object-cover rounded-xl border border-black flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-black text-black line-clamp-2 group-hover:text-[var(--color-primary)] transition-colors">
+                        {vid.title}
+                      </p>
+                      <p className="text-[10px] font-bold text-black/60 mt-1">{vid.channelTitle}</p>
+                      <span className="inline-flex items-center gap-1 mt-1.5 text-[10px] font-black text-[var(--color-primary)]">
+                        Watch on YouTube <ExternalLink className="w-3 h-3" />
+                      </span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Recommended Craft Projects */}
           <div>
             <div className="flex items-center justify-between mb-4">
@@ -218,16 +297,44 @@ export const UploadScan: React.FC<UploadScanProps> = ({ onNavigate }) => {
               </span>
             </div>
 
-            {/* Vertical Stack of Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {analysisResult.matchedProjects.map((proj) => (
-                <ProjectCard
-                  key={proj.id}
-                  project={proj}
-                  onSelect={(p) => onNavigate('craft-detail', { project: p })}
-                />
-              ))}
-            </div>
+            {/* Project cards */}
+            {analysisResult.matchedProjects.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {analysisResult.matchedProjects.map((proj) => (
+                  <ProjectCard
+                    key={proj.id}
+                    project={proj}
+                    onSelect={(p) => onNavigate('craft-detail', { project: p })}
+                  />
+                ))}
+              </div>
+            ) : (
+              /* No in-app posts found — offer AI-generated craft */
+              <div className="p-6 bg-white rounded-2xl border-[2px] border-dashed border-black/30 text-center space-y-3">
+                <p className="text-sm font-black text-black/70">
+                  No community projects found for this material yet.
+                </p>
+                {!generatedCraft && (
+                  <Button
+                    variant="primary"
+                    size="md"
+                    onClick={handleGenerateCraft}
+                    disabled={generatingCraft}
+                    icon={<Wand2 className="w-4 h-4" />}
+                  >
+                    {generatingCraft ? 'Generating AI Craft Guide…' : 'Generate AI Craft Guide'}
+                  </Button>
+                )}
+                {generatedCraft && (
+                  <div className="text-left mt-4">
+                    <ProjectCard
+                      project={generatedCraft}
+                      onSelect={(p) => onNavigate('craft-detail', { project: p })}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}

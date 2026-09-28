@@ -10,17 +10,23 @@ interface LoginFormProps {
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToSignup }) => {
   const { login } = useAuth();
-  const [email, setEmail] = useState('alex.rivera@waste2wonder.org');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
   const [forgotSent, setForgotSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setLoginError(null);
     try {
-      await login(email, password);
-      onSuccess();
+      const ok = await login(email, password);
+      if (ok) {
+        onSuccess();
+      } else {
+        setLoginError('Invalid email or password. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -87,6 +93,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToSignu
             />
           </div>
         </div>
+
+        {loginError && (
+          <div className="p-2.5 bg-[#FF6B6B]/20 border border-[#FF6B6B] rounded-xl text-xs font-bold text-[var(--color-text-accent-dark)]">
+            {loginError}
+          </div>
+        )}
 
         {forgotSent && (
           <div className="p-2.5 bg-[#FFF6E0] border border-[var(--color-text-accent-dark)] rounded-xl text-xs font-bold text-[var(--color-text-accent-dark)]">

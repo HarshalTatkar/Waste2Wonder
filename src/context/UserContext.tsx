@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { User, ImplementedWorkItem } from '../types/user';
 import { profileService } from '../services/profileService';
 import { postService } from '../services/postService';
+import { useAuth } from './AuthContext';
 
 interface UserContextType {
   user: User | null;
@@ -23,21 +24,31 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { isAuthenticated, userId } = useAuth();
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const load = async () => {
+    if (!isAuthenticated || !userId) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
     try {
       const u = await profileService.getCurrentUser();
       setUser(u);
+    } catch {
+      setUser(null);
     } finally {
       setLoading(false);
     }
   };
 
+  // Reload user whenever auth state changes
   useEffect(() => {
     load();
-  }, []);
+  }, [isAuthenticated, userId]);
 
   const refreshUser = async () => {
     await load();
@@ -57,7 +68,8 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     feedbackNote?: string;
     creatorName?: string;
   }): Promise<ImplementedWorkItem> => {
-    // If from in-app post, increment that post's implementation count
+    // If from in-app post, the DB trigger handles the count increment.
+    // We still call it here so the profileService can log the implementation.
     if (item.originalReferenceSource === 'in_app' && item.originalReferenceId) {
       await postService.incrementImplementationCount(item.originalReferenceId);
     }

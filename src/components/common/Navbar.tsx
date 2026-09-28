@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Sparkles, User as UserIcon } from 'lucide-react';
+import { Menu, X, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useUser } from '../../context/UserContext';
 
@@ -85,6 +85,13 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate }) => {
               >
                 Scan Waste
               </button>
+              <button
+                onClick={() => { logout(); handleNav('home'); }}
+                className="p-1.5 rounded-full border-[2px] border-black bg-white shadow-[2px_2px_0px_#000] text-black cursor-pointer hover:-translate-y-0.5 active:translate-y-0.5 transition-all"
+                title="Log out"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
             </div>
           ) : (
             <>
@@ -143,6 +150,14 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onNavigate }) => {
             >
               Scan Waste
             </button>
+            {isAuthenticated && (
+              <button
+                onClick={() => { logout(); handleNav('home'); setMobileMenuOpen(false); }}
+                className="flex-1 py-2 rounded-full border-[2px] border-black bg-white shadow-[2px_2px_0px_#000] font-black text-xs text-black text-center flex items-center justify-center gap-1"
+              >
+                <LogOut className="w-3.5 h-3.5" /> Log Out
+              </button>
+            )}
           </div>
         </div>
       )}

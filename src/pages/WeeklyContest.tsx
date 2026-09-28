@@ -64,7 +64,8 @@ export const WeeklyContest: React.FC<WeeklyContestProps> = ({ onNavigate }) => {
   };
 
   const handleVote = async (entryId: string) => {
-    await contestService.voteContestEntry(entryId);
+    if (!user) return;
+    await contestService.voteContestEntry(entryId, user.id);
   };
 
   // Called when user clicks "Try It" on any card

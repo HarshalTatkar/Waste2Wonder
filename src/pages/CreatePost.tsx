@@ -76,7 +76,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({
     setPublishing(true);
 
     try {
-      // Create post via postService
+      // Create post via postService (authorId replaces the author object)
       const newPost = await postService.createPost({
         title: formData.title,
         description: formData.description,
@@ -97,24 +97,12 @@ export const CreatePost: React.FC<CreatePostProps> = ({
           role: 'Community Maker',
         },
         isContestEntry: formData.isContestEntry,
+        authorId: user.id,
       });
 
       // If flagged as contest entry, also submit to weekly contest
       if (formData.isContestEntry) {
-        await contestService.submitContestEntry({
-          postId: newPost.id,
-          title: formData.title,
-          description: formData.description,
-          beforeImage,
-          afterImage,
-          materialType: formData.materials[0] || 'Upcycled',
-          creator: {
-            id: user.id,
-            name: user.name,
-            username: user.username,
-            avatar: user.avatar,
-          },
-        });
+        await contestService.submitContestEntry(newPost.id);
       }
 
       confetti({

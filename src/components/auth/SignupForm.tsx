@@ -11,13 +11,13 @@ interface SignupFormProps {
 
 export const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin }) => {
   const { signup } = useAuth();
-  const [name, setName] = useState('Alex Rivera');
-  const [email, setEmail] = useState('alex.rivera@waste2wonder.org');
-  const [password, setPassword] = useState('password123');
-  const [confirmPassword, setConfirmPassword] = useState('password123');
-  const [city, setCity] = useState('Seattle, WA');
-  const [wasteTypes, setWasteTypes] = useState<string[]>(['Plastic', 'Fabric', 'Paper-Cardboard']);
-  const [mainGoal, setMainGoal] = useState<string>('Learn upcycling');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [city, setCity] = useState('');
+  const [wasteTypes, setWasteTypes] = useState<string[]>([]);
+  const [mainGoal, setMainGoal] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 

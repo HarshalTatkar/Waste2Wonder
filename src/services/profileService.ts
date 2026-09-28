@@ -1,138 +1,226 @@
+import { supabase } from '../lib/supabase';
 import { User, ImplementedWorkItem } from '../types/user';
-import mockUserData from '../data/mockUser.json';
 
-let currentUserState: User = { ...(mockUserData as unknown as User) };
-
-// Other mock users for public viewing
-const otherUsersState: Record<string, User> = {
-  'user-2': {
-    id: 'user-2',
-    name: 'Maya Lin',
-    username: 'upcycle_maya',
-    email: 'maya.lin@craft.dev',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-    bio: 'Textile artisan giving old denim, discarded canvas, and thrift clothing a second life.',
-    city: 'Portland, OR',
-    wasteTypes: ['Fabric', 'Leather', 'Canvas'],
-    mainGoal: 'Reduce waste',
-    followersCount: 890,
-    followingCount: 310,
-    isFollowing: false,
+// ── Shape helper ──────────────────────────────────────────────
+function rowToUser(row: Record<string, unknown>): User {
+  return {
+    id: row.id as string,
+    name: (row.name as string) || '',
+    username: (row.username as string) || '',
+    email: '',  // not stored in public.users for privacy
+    avatar: (row.avatar_url as string) || '',
+    bio: (row.bio as string) || '',
+    city: (row.city as string) || '',
+    wasteTypes: (row.waste_types as string[]) || [],
+    mainGoal: (row.main_goal as string) || '',
+    followersCount: (row.followers_count as number) || 0,
+    followingCount: (row.following_count as number) || 0,
+    isFollowing: (row.is_following as boolean) || false,
     stats: {
-      totalLikes: 3420,
-      totalImplementations: 420,
-      totalViews: 18200,
-      totalPosts: 14,
+      totalLikes: (row.total_likes as number) || 0,
+      totalImplementations: (row.total_implementations as number) || 0,
+      totalViews: (row.total_views as number) || 0,
+      totalPosts: (row.total_posts as number) || 0,
     },
     environmentalImpact: {
-      materialsReusedKg: 120.4,
-      wastePreventedItems: 430,
-      carbonSavedKg: 210.8,
-      treesEquivalent: 10.5,
+      materialsReusedKg: (row.env_materials_reused_kg as number) || 0,
+      wastePreventedItems: (row.env_waste_prevented_items as number) || 0,
+      carbonSavedKg: (row.env_carbon_saved_kg as number) || 0,
+      treesEquivalent: (row.env_trees_equivalent as number) || 0,
     },
-    implementedWork: [
-      {
-        id: 'imp-m1',
-        originalReferenceTitle: 'Stained Glass Style Sun-catcher from Waste Plastic Bottles',
-        originalReferenceSource: 'in_app',
-        originalReferenceId: 'post-2',
-        implementedCraftTitle: 'Dual Cascade Prism Pendant',
-        uploadedResultPhoto: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80',
-        date: '2026-09-18',
-        creatorName: 'Kavita Reddy',
-        feedbackNote: 'Loved this technique! Used amber iced tea bottles.',
-      },
-    ],
-    achievements: [
-      {
-        id: 'ach-m1',
-        title: 'Fabric Alchemist',
-        icon: '🧵',
-        description: 'Repurposed over 50 pairs of worn jeans',
-        unlockedAt: 'July 2026',
-      },
-    ],
-    weeklyContestMilestones: [
-      {
-        week: 36,
-        achievement: '1st Place — Denim Reimagined Challenge',
-        badge: '🥇 Golden Shears',
-      },
-    ],
-    materialsIHave: ['Fabric', 'Metal'],
-  },
-};
+    implementedWork: [],   // loaded separately
+    achievements: [],      // loaded separately
+    weeklyContestMilestones: [],
+    materialsIHave: (row.materials_i_have as string[]) || [],
+  };
+}
+
+function rowToImplementation(row: Record<string, unknown>): ImplementedWorkItem {
+  return {
+    id: row.id as string,
+    originalReferenceTitle: row.original_title as string,
+    originalReferenceSource: row.original_source as ImplementedWorkItem['originalReferenceSource'],
+    originalReferenceId: (row.original_post_id as string) || '',
+    implementedCraftTitle: row.craft_title as string,
+    uploadedResultPhoto: row.result_photo_url as string,
+    date: (row.created_at as string).split('T')[0],
+    feedbackNote: (row.feedback_note as string) || '',
+    creatorName: (row.creator_name as string) || '',
+  };
+}
 
 export const profileService = {
   getCurrentUser: async (): Promise<User> => {
-    await new Promise((res) => setTimeout(res, 150));
-    return { ...currentUserState };
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (!authUser) throw new Error('Not authenticated');
+    return profileService.getUserById(authUser.id);
   },
 
   getUserById: async (id: string): Promise<User> => {
-    await new Promise((res) => setTimeout(res, 150));
-    if (id === currentUserState.id || id === 'current-user') {
-      return { ...currentUserState };
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    const currentUserId = authUser?.id;
+
+    const { data: row, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error || !row) throw new Error(error?.message ?? 'User not found');
+
+    const user = rowToUser(row as Record<string, unknown>);
+
+    // Check if the current user follows this user
+    if (currentUserId && currentUserId !== id) {
+      const { data: followRow } = await supabase
+        .from('follows')
+        .select('follower_id')
+        .eq('follower_id', currentUserId)
+        .eq('following_id', id)
+        .maybeSingle();
+      user.isFollowing = !!followRow;
     }
-    const user = otherUsersState[id];
-    if (user) {
-      return { ...user };
-    }
-    // Default fallback
-    return {
-      ...currentUserState,
-      id,
-      name: 'Community Creator',
-      username: 'creator_' + id,
-      isFollowing: false,
-    };
+
+    // Load implementations
+    const { data: implRows } = await supabase
+      .from('user_implementations')
+      .select('*')
+      .eq('user_id', id)
+      .order('created_at', { ascending: false });
+    user.implementedWork = (implRows ?? []).map((r) => rowToImplementation(r as Record<string, unknown>));
+
+    // Load achievements
+    const { data: achRows } = await supabase
+      .from('achievements')
+      .select('*')
+      .eq('user_id', id)
+      .order('unlocked_at', { ascending: false });
+    user.achievements = (achRows ?? []).map((r) => ({
+      id: r.id as string,
+      title: r.title as string,
+      icon: r.icon as string,
+      description: r.description as string,
+      unlockedAt: r.unlocked_at as string,
+    }));
+
+    return user;
   },
 
   updateUserProfile: async (data: Partial<User>): Promise<User> => {
-    await new Promise((res) => setTimeout(res, 200));
-    currentUserState = { ...currentUserState, ...data };
-    return { ...currentUserState };
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (!authUser) throw new Error('Not authenticated');
+
+    const updates: Record<string, unknown> = {};
+    if (data.name !== undefined)         updates.name = data.name;
+    if (data.bio !== undefined)          updates.bio = data.bio;
+    if (data.city !== undefined)         updates.city = data.city;
+    if (data.wasteTypes !== undefined)   updates.waste_types = data.wasteTypes;
+    if (data.mainGoal !== undefined)     updates.main_goal = data.mainGoal;
+    if (data.avatar !== undefined)       updates.avatar_url = data.avatar;
+
+    await supabase.from('users').update(updates).eq('id', authUser.id);
+    return profileService.getUserById(authUser.id);
   },
 
   addImplementedCraft: async (
     item: Omit<ImplementedWorkItem, 'id' | 'date'>
   ): Promise<ImplementedWorkItem> => {
-    await new Promise((res) => setTimeout(res, 300));
-    const newItem: ImplementedWorkItem = {
-      ...item,
-      id: `imp-${Date.now()}`,
-      date: new Date().toISOString().split('T')[0],
-    };
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (!authUser) throw new Error('Not authenticated');
 
-    // Increment environmental impact
-    currentUserState.environmentalImpact.materialsReusedKg += 0.8;
-    currentUserState.environmentalImpact.wastePreventedItems += 1;
-    currentUserState.environmentalImpact.carbonSavedKg += 1.2;
-    currentUserState.environmentalImpact.treesEquivalent = +(
-      currentUserState.environmentalImpact.carbonSavedKg / 20
-    ).toFixed(1);
+    const { data, error } = await supabase
+      .from('user_implementations')
+      .insert({
+        user_id: authUser.id,
+        original_post_id: item.originalReferenceId || null,
+        original_source: item.originalReferenceSource,
+        original_title: item.originalReferenceTitle,
+        craft_title: item.implementedCraftTitle,
+        result_photo_url: item.uploadedResultPhoto,
+        feedback_note: item.feedbackNote ?? '',
+        creator_name: item.creatorName ?? '',
+      })
+      .select('*')
+      .single();
 
-    currentUserState.implementedWork = [newItem, ...currentUserState.implementedWork];
-    return newItem;
+    if (error || !data) throw new Error(error?.message ?? 'Failed to save implementation');
+
+    // Check and award achievements based on new total
+    await profileService._checkAndAwardAchievements(authUser.id);
+
+    return rowToImplementation(data as Record<string, unknown>);
   },
 
   toggleFollowUser: async (
     userId: string
   ): Promise<{ isFollowing: boolean; followersCount: number }> => {
-    const target = otherUsersState[userId];
-    if (target) {
-      target.isFollowing = !target.isFollowing;
-      target.followersCount += target.isFollowing ? 1 : -1;
-      return {
-        isFollowing: target.isFollowing,
-        followersCount: target.followersCount,
-      };
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (!authUser) throw new Error('Not authenticated');
+
+    const { data: existingFollow } = await supabase
+      .from('follows')
+      .select('follower_id')
+      .eq('follower_id', authUser.id)
+      .eq('following_id', userId)
+      .maybeSingle();
+
+    if (existingFollow) {
+      await supabase.from('follows').delete()
+        .eq('follower_id', authUser.id)
+        .eq('following_id', userId);
+    } else {
+      await supabase.from('follows').insert({
+        follower_id: authUser.id,
+        following_id: userId,
+      });
     }
-    return { isFollowing: true, followersCount: 1 };
+
+    const { data: targetUser } = await supabase
+      .from('users')
+      .select('followers_count')
+      .eq('id', userId)
+      .single();
+
+    return {
+      isFollowing: !existingFollow,
+      followersCount: (targetUser?.followers_count as number) ?? 0,
+    };
   },
 
   updateMaterialsIHave: async (materials: string[]): Promise<string[]> => {
-    currentUserState.materialsIHave = materials;
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (!authUser) throw new Error('Not authenticated');
+
+    await supabase.from('users').update({ materials_i_have: materials }).eq('id', authUser.id);
     return materials;
+  },
+
+  // ── Internal: award achievements based on milestones ──────
+  _checkAndAwardAchievements: async (userId: string): Promise<void> => {
+    const { data: userRow } = await supabase
+      .from('users')
+      .select('total_implementations, env_materials_reused_kg, total_posts')
+      .eq('id', userId)
+      .single();
+
+    if (!userRow) return;
+
+    const impls = (userRow.total_implementations as number) || 0;
+    const kg    = (userRow.env_materials_reused_kg as number) || 0;
+
+    const milestones = [
+      { condition: impls >= 5,   id: 'ach-pioneer',    title: 'Zero Waste Pioneer',   icon: '🌱', description: 'Completed first 5 verified upcycling builds' },
+      { condition: impls >= 50,  id: 'ach-master',     title: 'Master Re-purposer',   icon: '⚡', description: 'Inspired 50+ community implementations' },
+      { condition: kg >= 35,     id: 'ach-eco-hero',   title: 'Eco Impact Hero',       icon: '🌍', description: 'Diverted over 35kg of solid landfill waste' },
+    ];
+
+    for (const m of milestones) {
+      if (!m.condition) continue;
+      // Only insert if not already awarded
+      await supabase.from('achievements').upsert(
+        { id: `${m.id}-${userId}`, user_id: userId, title: m.title, icon: m.icon, description: m.description },
+        { onConflict: 'id', ignoreDuplicates: true }
+      );
+    }
   },
 };

@@ -1,5 +1,25 @@
-# Logs
-logs
+# -- Dependencies ---------------------------------------------
+node_modules/
+
+# -- Build output ----------------------------------------------
+dist/
+dist-ssr/
+build/
+
+# -- Environment variables (NEVER commit these) ----------------
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+
+# -- Supabase local dev ----------------------------------------
+.supabase/
+supabase/.temp/
+
+# -- Logs ------------------------------------------------------
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,18 +27,41 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# -- OS files --------------------------------------------------
 .DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# -- Editor directories ----------------------------------------
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.swp
+
+# VS Code — keep settings.json and extensions.json, ignore the rest
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+
+# -- Bob (AI assistant) ----------------------------------------
+.bob/
+
+# -- TypeScript cache ------------------------------------------
+*.tsbuildinfo
+
+# -- Vite cache ------------------------------------------------
+.vite/
+
+# -- Test coverage ---------------------------------------------
+coverage/
+
+# -- Misc ------------------------------------------------------
+*.local
+*.pem

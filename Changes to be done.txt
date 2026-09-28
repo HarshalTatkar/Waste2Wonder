@@ -1,0 +1,259 @@
+# Application Feature Requirements
+
+## 1. Image Analysis
+
+### A. Image Identification
+
+* The application should accurately identify the uploaded image.
+* It should provide a **detailed identification of the object/craft**.
+* The identification should include specific characteristics wherever possible.
+
+  * Example: Instead of identifying an image simply as a *T-shirt*, the system should identify it as a **torn T-shirt**, if applicable.
+
+### B. Reference Search
+
+After identifying the object/craft, the application should search for relevant references from:
+
+* **In-app posts** created by other users.
+* **YouTube videos** available across the platform.
+
+The system should retrieve the **most relevant and closely matching results**, prioritizing exact or highly similar matches.
+
+### C. Reference Results and Craft Information
+
+The retrieved results should be displayed in a **clean and organized interface using display cards**, such as:
+
+* YouTube references
+* In-app posts
+
+When the user selects a reference, the application should display all relevant information about the craft.
+
+This information should include:
+
+* Step-by-step instructions
+* Materials required
+* Precautions
+* Estimated time
+* Difficulty level
+* Estimated cost
+
+#### YouTube Reference
+
+If the user selects a YouTube video:
+
+* Steps should be **automatically generated based on the video**.
+* Required materials should be **automatically extracted/generated based on the video**.
+* Other relevant information such as precautions, estimated time, difficulty, and cost should also be generated where possible.
+
+The user should also have an option to **upload their final result**.
+
+The uploaded implementation should:
+
+* Appear on the user's profile.
+* Maintain a record of the craft/reference they implemented.
+* Contribute to the user's environmental-impact/achievement tracking.
+
+### D. In-App Post Reference
+
+If the user selects an in-app post:
+
+* The overall process should remain the same.
+* However, **steps do not need to be generated again**, because the original post already contains the required information.
+* The in-app post should provide:
+
+  * Steps
+  * Materials
+  * Precautions
+  * Time
+  * Difficulty
+  * Cost
+  * Other relevant craft information
+
+After implementing the craft, the user can attach/upload their completed work.
+
+This implementation should:
+
+* Appear on the user's profile.
+* Be associated with the original in-app post.
+* Increase the **implementation count** of the original post.
+* Help the original creator gain visibility and engagement.
+
+### E. No Matching Reference Available
+
+If no suitable in-app post or YouTube video is found, the application should independently generate the required craft information.
+
+The application should generate:
+
+* Step-by-step instructions
+* Required materials
+* Estimated time
+* Estimated cost
+* Difficulty level
+* Precautions
+* Other relevant information
+
+Additionally, the application should **generate visual references for the craft** to help the user understand the expected result.
+
+Multiple images should be generated, including:
+
+1. **Final Output Image**
+
+   * Shows what the completed craft should look like.
+
+2. **In-Progress Images**
+
+   * Shows the expected appearance at different stages of the process.
+   * Helps the user verify whether their work/action at each step is correct.
+
+This feature ensures that the application remains useful even when there are **no relevant user-created posts or YouTube references available**.
+
+---
+
+# 2. User In-App Post Creation
+
+Users should be able to create their own craft posts.
+
+### A. Before/After Images
+
+The user must upload:
+
+* **Before image**
+* **After image**
+
+This allows the application and other users to clearly understand the transformation.
+
+### B. Process Images
+
+The user must upload **multiple images showing the craft creation process**.
+
+These images will be analyzed by the application to:
+
+* Automatically generate the step-by-step process.
+* Help other users understand how to recreate the craft.
+* Provide a structured tutorial based on the user's actual process.
+
+### C. Craft Information
+
+The user should provide:
+
+* Materials used
+* Cost estimation
+* Time taken
+
+The application should automatically determine:
+
+* Difficulty level
+* Precautions
+* Other relevant information
+
+### D. Post Engagement
+
+Every user-created post should include:
+
+* Comments
+* Likes
+* Implementation count
+* Views
+
+The implementation count should increase whenever another user successfully uses the post as a reference and uploads their own implementation.
+
+This system should help creators track **engagement and the impact of their creations**.
+
+---
+
+# 3. User Profile
+
+The user profile should contain **two primary sections**.
+
+## A. Implemented Work
+
+This section should display all crafts/projects that the user has implemented by following:
+
+* Other users' in-app posts
+* YouTube references
+* AI-generated craft instructions
+
+Each implementation should maintain a record of:
+
+* Original reference
+* Implemented craft
+* Uploaded final result
+* Date of implementation
+* Other relevant information
+
+The profile should also track the user's **environmental contribution**, such as:
+
+* Materials reused
+* Waste potentially prevented
+* Environmental impact
+* Sustainability/footprint-related metrics
+
+## B. Create Your Own Post
+
+This section should allow users to:
+
+* Create new in-app craft posts.
+* Upload before/after images.
+* Upload process images.
+* Provide materials used.
+* Provide other required information.
+
+The creator should also be able to see:
+
+* Number of likes
+* Number of implementations
+* Number of views
+* Comments
+* Other engagement metrics
+
+This allows creators to understand how their content is being used and how much engagement it receives.
+
+## C. Profile Features
+
+The profile should also include:
+
+* **Achievements**
+* **Badges**
+* Weekly contest achievements/winnings
+* Other milestones
+* Followers
+* Following
+
+The profile experience can follow a structure similar to Instagram for social discovery and engagement, **but without a messaging/chat feature**.
+
+---
+
+# 4. Weekly Contest
+
+The application should include a weekly craft contest.
+
+### A. Maximum Entries
+
+* Maximum number of entries per weekly contest: **100**
+
+### B. Fair Content Distribution
+
+A dedicated algorithm should be implemented to ensure that all contest entries receive **fair and equal exposure**.
+
+The system should ensure:
+
+* Every entry gets exposure to the audience.
+* No entry is systematically suppressed.
+* Each entry is shown at least once to the relevant audience.
+* Distribution is performed at an approximately equal rate.
+* The system does not favor entries based solely on early engagement.
+
+The objective is to prevent situations where an entry receives little or no visibility.
+
+### C. Contest Entry Features
+
+Every contest entry should provide users with:
+
+* **Likes**
+* **Comments**
+* **Views**
+* **Try It** option
+
+The **Try It** option should allow users to implement the submitted craft and upload their own result.
+
+This implementation should contribute to the original creator's **implementation count and engagement metrics**.
