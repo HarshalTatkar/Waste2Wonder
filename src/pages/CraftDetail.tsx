@@ -30,14 +30,19 @@ export const CraftDetail: React.FC<CraftDetailProps> = ({
 
   // Comments — loaded from DB for in-app posts, local-only for others
   const [comments, setComments] = useState<Comment[]>([]);
+  const [implementations, setImplementations] = useState<any[]>([]);
   const isDbBacked = project.source === 'in_app' && project.id && !project.id.startsWith('ai-');
 
-  // Fetch comments from DB on mount for in-app posts
+  // Fetch comments and implementations from DB on mount for in-app posts
   useEffect(() => {
     if (isDbBacked) {
       postService.getPostById(project.id).then((post) => {
         if (post) setComments(post.comments);
-      }).catch(() => { /* ignore — will show empty comments */ });
+      }).catch(() => { /* ignore */ });
+
+      postService.getPostImplementations(project.id).then((impls) => {
+        setImplementations(impls);
+      }).catch(() => { /* ignore */ });
     }
   }, [project.id, isDbBacked]);
 
@@ -251,6 +256,34 @@ export const CraftDetail: React.FC<CraftDetailProps> = ({
           <span>Upload My Result Photo</span>
         </button>
       </div>
+
+      {/* Implementations Section */}
+      {isDbBacked && implementations.length > 0 && (
+        <div className="mt-12 bg-white rounded-3xl border-[3px] border-black shadow-[6px_6px_0px_#000] p-6 sm:p-8">
+          <h3 className="text-2xl font-black text-black mb-6 uppercase tracking-wider">
+            Maker Implementations
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {implementations.map((impl) => (
+              <div key={impl.id} className="bg-[#FFFDF9] rounded-2xl border-[2px] border-black overflow-hidden flex flex-col group">
+                <div className="aspect-video w-full border-b-[2px] border-black overflow-hidden relative bg-black/5">
+                  <img src={impl.resultPhoto} alt={impl.craftTitle} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                </div>
+                <div className="p-4 flex flex-col gap-2 flex-1">
+                  <h4 className="font-black text-sm text-black leading-tight line-clamp-1">{impl.craftTitle}</h4>
+                  {impl.feedbackNote && (
+                    <p className="text-xs font-bold text-black/70 line-clamp-2">{impl.feedbackNote}</p>
+                  )}
+                  <div className="mt-auto pt-3 flex items-center gap-2 border-t-[1.5px] border-black/10">
+                    <img src={impl.creatorAvatar || 'https://via.placeholder.com/150'} alt={impl.creatorName} className="w-6 h-6 rounded-md object-cover border-[1.5px] border-black" />
+                    <span className="text-[10px] font-black uppercase text-black/80 truncate">By {impl.creatorName}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Fully Functional Interactive Comments Section */}
       <CommentSection

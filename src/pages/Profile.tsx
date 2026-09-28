@@ -7,7 +7,7 @@ import { MaterialsIHaveWidget } from '../components/profile/MaterialsIHaveWidget
 import { CredentialsSection } from '../components/profile/CredentialsSection';
 import { useUser } from '../context/UserContext';
 import { profileService } from '../services/profileService';
-import { postService } from '../services/postService';
+import { postService, storageService } from '../services/postService';
 import { User } from '../types/user';
 import { Post } from '../types/post';
 import { Sparkles, KeyRound, Leaf, Trophy, Layers } from 'lucide-react';
@@ -61,12 +61,33 @@ export const Profile: React.FC<ProfilePageProps> = ({ onNavigate, userId }) => {
 
   const handleFollowToggle = async () => {
     if (!profileUser) return;
-    const res = await profileService.toggleFollowUser(profileUser.id);
+    
+    // Optimistic update
+    const isCurrentlyFollowing = profileUser.isFollowing;
+    const optimisticCount = profileUser.followersCount + (isCurrentlyFollowing ? -1 : 1);
+    
     setProfileUser({
       ...profileUser,
-      isFollowing: res.isFollowing,
-      followersCount: res.followersCount,
+      isFollowing: !isCurrentlyFollowing,
+      followersCount: optimisticCount,
     });
+
+    try {
+      const res = await profileService.toggleFollowUser(profileUser.id);
+      // If the backend returns a different count due to sync issues, we can optionally use it, 
+      // but if the backend trigger is missing/lagging, we'll keep our optimistic count.
+      // We will only override if the backend explicitly has a non-zero, different state that makes sense.
+      // For now, optimistic update solves the UI freezing issue!
+      setProfileUser(prev => prev ? {
+        ...prev,
+        isFollowing: res.isFollowing,
+        // Using Math.max to prevent negative counts and preferring our optimistic count if backend returns stale data
+        followersCount: Math.max(0, res.followersCount !== profileUser.followersCount ? res.followersCount : optimisticCount),
+      } : null);
+    } catch (e) {
+      // Revert on failure
+      setProfileUser(profileUser);
+    }
   };
 
   const handleToggleStashMaterial = (mat: string) => {
@@ -105,6 +126,21 @@ export const Profile: React.FC<ProfilePageProps> = ({ onNavigate, userId }) => {
     }
   };
 
+  const handleAvatarChange = async (file: File) => {
+    try {
+      if (currentUser) {
+        setLoading(true);
+        const url = await storageService.uploadImage(file, currentUser.id);
+        await updateProfile({ avatar: url });
+        await loadProfile(); // Refresh profile state locally
+      }
+    } catch (error) {
+      alert(`Failed to upload avatar: ${(error as Error).message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!profileUser) {
     return <div className="p-12 text-center font-black">Loading maker profile...</div>;
   }
@@ -118,6 +154,7 @@ export const Profile: React.FC<ProfilePageProps> = ({ onNavigate, userId }) => {
         onFollowToggle={handleFollowToggle}
         onCreatePostClick={() => onNavigate('create-post')}
         onOpenCredentials={() => setActiveProfileTab('credentials')}
+        onAvatarChange={handleAvatarChange}
       />
 
       {/* Accessible Sub-navigation Tabs */}
@@ -132,7 +169,7 @@ export const Profile: React.FC<ProfilePageProps> = ({ onNavigate, userId }) => {
           }`}
         >
           <Sparkles className="w-4 h-4" />
-          <span>My Projects ({profileUser.implementedWork.length + userPosts.length})</span>
+          <span>{isOwnProfile ? 'My Projects' : `${profileUser.name}'s Projects`} ({profileUser.implementedWork.length + userPosts.length})</span>
         </button>
 
         {isOwnProfile && (

@@ -146,6 +146,32 @@ export const postService = {
     }
   },
 
+  getPostImplementations: async (postId: string) => {
+    const { data, error } = await supabase
+      .from('user_implementations')
+      .select('*, users!user_implementations_user_id_fkey(name, username, avatar_url)')
+      .eq('original_post_id', postId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw new Error(error.message);
+    
+    // Map to a useful shape for UI
+    return (data || []).map((row) => {
+      const u = row.users as Record<string, unknown> | null;
+      return {
+        id: row.id as string,
+        userId: row.user_id as string,
+        creatorName: (u?.name as string) || (row.creator_name as string) || 'Unknown',
+        creatorUsername: (u?.username as string) || '',
+        creatorAvatar: (u?.avatar_url as string) || '',
+        craftTitle: row.craft_title as string,
+        resultPhoto: row.result_photo_url as string,
+        feedbackNote: row.feedback_note as string,
+        date: (row.created_at as string).split('T')[0],
+      };
+    });
+  },
+
   checkIfLiked: async (postId: string, userId: string): Promise<boolean> => {
     const { data } = await supabase
       .from('likes')
@@ -247,15 +273,20 @@ export function postToProject(post: Post): Project {
 }
 
 export const storageService = {
-  uploadImage: async (urlOrBlob: string, pathPrefix: string): Promise<string> => {
+  uploadImage: async (urlOrBlob: string | File, pathPrefix: string): Promise<string> => {
     // If it's already an external URL (e.g. Unsplash sample), just return it
-    if (urlOrBlob.startsWith('http') && !urlOrBlob.startsWith('blob:')) {
+    if (typeof urlOrBlob === 'string' && urlOrBlob.startsWith('http') && !urlOrBlob.startsWith('blob:')) {
       return urlOrBlob;
     }
 
     try {
-      const response = await fetch(urlOrBlob);
-      const blob = await response.blob();
+      let blob: Blob;
+      if (typeof urlOrBlob === 'string') {
+        const response = await fetch(urlOrBlob);
+        blob = await response.blob();
+      } else {
+        blob = urlOrBlob;
+      }
       const fileExt = blob.type.split('/')[1] || 'jpg';
       const fileName = `${pathPrefix}_${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
 
@@ -269,7 +300,7 @@ export const storageService = {
       return data.publicUrl;
     } catch (e) {
       console.error('Failed to upload image', e);
-      return urlOrBlob; // Fallback to whatever it was
+      return typeof urlOrBlob === 'string' ? urlOrBlob : ''; // Fallback to whatever it was
     }
   }
 };

@@ -11,6 +11,7 @@ interface PostCardProps {
   onOpenComments: (post: Post) => void;
   onTryIt: (post: Post) => void;
   onDelete?: (post: Post) => void;
+  onNavigate?: (page: string, params?: any) => void;
 }
 
 export const PostCard: React.FC<PostCardProps> = ({
@@ -19,6 +20,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   onOpenComments,
   onTryIt,
   onDelete,
+  onNavigate,
 }) => {
   const [likes, setLikes] = useState(post.likes);
   const [hasLiked, setHasLiked] = useState(false);
@@ -44,7 +46,13 @@ export const PostCard: React.FC<PostCardProps> = ({
     <article className="neu-card bg-white border-[2.5px] border-[var(--color-text-accent-dark)] shadow-[5px_5px_0px_var(--color-text-accent-dark)] rounded-3xl p-6 sm:p-7 mb-8 transition-all hover:shadow-[7px_7px_0px_var(--color-text-accent-dark)]">
       {/* Post Author Header */}
       <div className="flex items-center justify-between pb-4 mb-4 border-b-[2px] border-[var(--color-text-accent-dark)]/20">
-        <div className="flex items-center gap-3">
+        <div 
+          className="flex items-center gap-3 cursor-pointer group"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onNavigate) onNavigate('profile', { userId: post.author.id });
+          }}
+        >
           {post.author.avatar ? (
             <img
               src={post.author.avatar}

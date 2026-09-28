@@ -106,6 +106,45 @@ export const profileService = {
     return user;
   },
 
+  searchUsers: async (query: string): Promise<User[]> => {
+    if (!query.trim()) return [];
+    
+    // Attempt to get current user ID to set isFollowing correctly
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    const currentUserId = authUser?.id;
+
+    const { data: rows, error } = await supabase
+      .from('users')
+      .select('*')
+      .or(`name.ilike.%${query}%,username.ilike.%${query}%`)
+      .limit(10);
+
+    if (error) throw new Error(error.message);
+    if (!rows) return [];
+
+    let follows = new Set<string>();
+    if (currentUserId) {
+      const ids = rows.map(r => r.id);
+      const { data: followRows } = await supabase
+        .from('follows')
+        .select('following_id')
+        .eq('follower_id', currentUserId)
+        .in('following_id', ids);
+      
+      if (followRows) {
+        followRows.forEach(f => follows.add(f.following_id));
+      }
+    }
+
+    return rows.map(row => {
+      const u = rowToUser(row as Record<string, unknown>);
+      if (currentUserId && currentUserId !== u.id) {
+        u.isFollowing = follows.has(u.id);
+      }
+      return u;
+    });
+  },
+
   updateUserProfile: async (data: Partial<User>): Promise<User> => {
     const { data: { user: authUser } } = await supabase.auth.getUser();
     if (!authUser) throw new Error('Not authenticated');
