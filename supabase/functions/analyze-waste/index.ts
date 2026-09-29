@@ -79,6 +79,29 @@ serve(async (req) => {
     const body: RequestBody = await req.json();
     const { task } = body;
 
+    const fetchAndParseJson = async (openRouterBody: any, apiKey: string, maxRetries = 3) => {
+      let lastError = new Error('Unknown error');
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+          const resp = await openRouterPost(OPENROUTER_URL, apiKey, openRouterBody);
+          const data = await resp.json();
+          if (data.error) throw new Error(`API error: ${data.error.message}`);
+          
+          const text = data.choices?.[0]?.message?.content;
+          if (!text) throw new Error('No content returned.');
+          
+          return extractJson(text);
+        } catch (err) {
+          lastError = err as Error;
+          // If this is the last attempt, don't wait, just throw
+          if (attempt === maxRetries - 1) break;
+          // Wait a short delay before retrying
+          await new Promise((r) => setTimeout(r, 1000));
+        }
+      }
+      throw lastError;
+    };
+
     let result: unknown;
 
     // ── TASK: identify ─────────────────────────────────────────
@@ -110,12 +133,7 @@ Analyze this image of a waste/discarded item and respond with ONLY valid JSON (n
         temperature: 0.2
       };
 
-      const resp = await openRouterPost(OPENROUTER_URL, apiKey, openRouterBody);
-      const data = await resp.json();
-      if (data.error) throw new Error(`API error: ${data.error.message}`);
-      const text = data.choices?.[0]?.message?.content;
-      if (!text) throw new Error('No content returned.');
-      result = extractJson(text);
+      result = await fetchAndParseJson(openRouterBody, apiKey);
 
     // ── TASK: generateSteps (process images via public URLs) ──
     } else if (task === 'generateSteps' && body.imageUrlArray) {
@@ -142,12 +160,7 @@ Respond ONLY with valid JSON in this exact format:
         temperature: 0.3
       };
 
-      const resp = await openRouterPost(OPENROUTER_URL, apiKey, openRouterBody);
-      const data = await resp.json();
-      if (data.error) throw new Error(`API error: ${data.error.message}`);
-      const text = data.choices?.[0]?.message?.content;
-      if (!text) throw new Error('No content returned.');
-      result = extractJson(text);
+      result = await fetchAndParseJson(openRouterBody, apiKey);
 
     // ── TASK: generateSteps (process images via base64, legacy) ──
     } else if (task === 'generateSteps' && body.imageBase64Array) {
@@ -177,12 +190,7 @@ Respond ONLY with valid JSON in this exact format:
         temperature: 0.3
       };
 
-      const resp = await openRouterPost(OPENROUTER_URL, apiKey, openRouterBody);
-      const data = await resp.json();
-      if (data.error) throw new Error(`API error: ${data.error.message}`);
-      const text = data.choices?.[0]?.message?.content;
-      if (!text) throw new Error('No content returned.');
-      result = extractJson(text);
+      result = await fetchAndParseJson(openRouterBody, apiKey);
 
     // ── TASK: generateSteps (YouTube URL) ─────────────────────
     } else if (task === 'generateSteps' && body.youtubeUrl) {
@@ -212,12 +220,7 @@ Respond ONLY with valid JSON in this format:
         temperature: 0.3
       };
 
-      const resp = await openRouterPost(OPENROUTER_URL, apiKey, openRouterBody);
-      const data = await resp.json();
-      if (data.error) throw new Error(`API error: ${data.error.message}`);
-      const text = data.choices?.[0]?.message?.content;
-      if (!text) throw new Error('No content returned.');
-      result = extractJson(text);
+      result = await fetchAndParseJson(openRouterBody, apiKey);
 
     // ── TASK: generateCraft (no match found) ──────────────────
     } else if (task === 'generateCraft') {
@@ -245,12 +248,7 @@ Respond ONLY with valid JSON:
         temperature: 0.5
       };
 
-      const resp = await openRouterPost(OPENROUTER_URL, apiKey, openRouterBody);
-      const data = await resp.json();
-      if (data.error) throw new Error(`API error: ${data.error.message}`);
-      const text = data.choices?.[0]?.message?.content;
-      if (!text) throw new Error('No content returned.');
-      result = extractJson(text);
+      result = await fetchAndParseJson(openRouterBody, apiKey);
 
     } else {
       throw new Error(`Unknown task: ${task}`);

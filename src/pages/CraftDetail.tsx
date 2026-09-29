@@ -9,10 +9,10 @@ import { GeneratedImageGallery } from '../components/craft-detail/GeneratedImage
 import { EngagementBar } from '../components/craft-detail/EngagementBar';
 import { UploadResultModal } from '../components/craft-detail/UploadResultModal';
 import { CommentSection } from '../components/community/CommentSection';
-import { Button } from '../components/common/Button';
+import { ReportPostModal } from '../components/community/ReportPostModal';
 import { useUser } from '../context/UserContext';
 import { postService } from '../services/postService';
-import { ArrowLeft, Sparkles, Trash2 } from 'lucide-react';
+import { ArrowLeft, Sparkles, Trash2, Flag } from 'lucide-react';
 import { Comment } from '../types/post';
 
 interface CraftDetailProps {
@@ -27,6 +27,7 @@ export const CraftDetail: React.FC<CraftDetailProps> = ({
 }) => {
   const { user, addImplementedCraft } = useUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [reportPost, setReportPost] = useState<Project | null>(null);
 
   // Comments — loaded from DB for in-app posts, local-only for others
   const [comments, setComments] = useState<Comment[]>([]);
@@ -144,6 +145,15 @@ export const CraftDetail: React.FC<CraftDetailProps> = ({
             >
               <Trash2 className="w-3.5 h-3.5" />
               Delete
+            </button>
+          )}
+          {user && project.author && user.username !== project.author.username && (
+            <button
+              onClick={() => setReportPost(project)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FFD93D]/10 hover:bg-[#FFD93D]/20 text-black text-xs font-black uppercase tracking-wider rounded-lg border-[2px] border-black transition-colors"
+            >
+              <Flag className="w-3.5 h-3.5" />
+              Report
             </button>
           )}
           <ReferenceSourceTag
@@ -302,6 +312,13 @@ export const CraftDetail: React.FC<CraftDetailProps> = ({
         referenceId={project.id}
         creatorName={project.author?.name}
         onSubmitResult={handleUploadResultSubmit}
+      />
+
+      {/* Report Post Modal */}
+      <ReportPostModal
+        isOpen={Boolean(reportPost)}
+        onClose={() => setReportPost(null)}
+        post={reportPost as any}
       />
     </div>
   );

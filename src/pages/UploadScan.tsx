@@ -8,7 +8,7 @@ import { Button } from '../components/common/Button';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { aiService, ImageAnalysisResult } from '../services/aiService';
 import { Project } from '../types/project';
-import { Sparkles, Camera, RotateCcw, AlertCircle, HelpCircle, PlayCircle, ExternalLink, Wand2, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { Sparkles, Camera, RotateCcw, AlertCircle, HelpCircle, PlayCircle, ExternalLink, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { YouTubeResult } from '../services/aiService';
 
 interface UploadScanProps {
@@ -21,8 +21,6 @@ export const UploadScan: React.FC<UploadScanProps> = ({ onNavigate }) => {
   const [analysisResult, setAnalysisResult] = useState<ImageAnalysisResult | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [showChatbot, setShowChatbot] = useState(false);
-  const [generatingCraft, setGeneratingCraft] = useState(false);
-  const [generatedCraft, setGeneratedCraft] = useState<Project | null>(null);
   const [youtubeSteps, setYoutubeSteps] = useState<Record<string, { loading: boolean; steps: { stepNumber: number; title: string; instructions: string }[] | null; error: string | null; collapsed: boolean }>>({});
 
   // Stores the fetched steps keyed by videoId. `collapsed` tracks whether the user has collapsed it.
@@ -109,26 +107,11 @@ export const UploadScan: React.FC<UploadScanProps> = ({ onNavigate }) => {
       setAnalyzing(false);
     }
   };
-
-  const handleGenerateCraft = async () => {
-    if (!analysisResult) return;
-    setGeneratingCraft(true);
-    try {
-      const craft = await aiService.generateFullCraft(analysisResult.label);
-      setGeneratedCraft(craft);
-    } catch (err) {
-      setAnalysisError((err as Error).message);
-    } finally {
-      setGeneratingCraft(false);
-    }
-  };
-
   const handleReset = () => {
     clearImages();
     setAnalysisResult(null);
     setAnalysisError(null);
     setShowChatbot(false);
-    setGeneratedCraft(null);
   };
 
   return (
@@ -376,30 +359,11 @@ export const UploadScan: React.FC<UploadScanProps> = ({ onNavigate }) => {
                 ))}
               </div>
             ) : (
-              /* No in-app posts found — offer AI-generated craft */
+              /* No in-app posts found */
               <div className="p-6 bg-white rounded-2xl border-[2px] border-dashed border-black/30 text-center space-y-3">
                 <p className="text-sm font-black text-black/70">
                   No community projects found for this material yet.
                 </p>
-                {!generatedCraft && (
-                  <Button
-                    variant="primary"
-                    size="md"
-                    onClick={handleGenerateCraft}
-                    disabled={generatingCraft}
-                    icon={<Wand2 className="w-4 h-4" />}
-                  >
-                    {generatingCraft ? 'Generating AI Craft Guide…' : 'Generate AI Craft Guide'}
-                  </Button>
-                )}
-                {generatedCraft && (
-                  <div className="text-left mt-4">
-                    <ProjectCard
-                      project={generatedCraft}
-                      onSelect={(p) => onNavigate('craft-detail', { project: p })}
-                    />
-                  </div>
-                )}
               </div>
             )}
           </div>

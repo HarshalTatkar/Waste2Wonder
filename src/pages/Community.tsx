@@ -5,6 +5,7 @@ import { Modal } from '../components/common/Modal';
 import { UploadResultModal } from '../components/craft-detail/UploadResultModal';
 import { ImplementationProcessModal, ProcessModalCraft } from '../components/common/ImplementationProcessModal';
 import { FindMakersModal } from '../components/community/FindMakersModal';
+import { ReportPostModal } from '../components/community/ReportPostModal';
 import { postService } from '../services/postService';
 import { Post } from '../types/post';
 import { useUser } from '../context/UserContext';
@@ -25,6 +26,7 @@ export const Community: React.FC<CommunityProps> = ({ onNavigate }) => {
   const [processPost, setProcessPost] = useState<Post | null>(null);
   const [uploadPost, setUploadPost] = useState<Post | null>(null);
   const [showFindMakers, setShowFindMakers] = useState(false);
+  const [reportPost, setReportPost] = useState<Post | null>(null);
 
   useEffect(() => {
     loadPosts();
@@ -181,6 +183,7 @@ export const Community: React.FC<CommunityProps> = ({ onNavigate }) => {
             onTryIt={handleTryItClick}
             onDelete={user?.username === post.author.username ? handleDeletePost : undefined}
             onNavigate={onNavigate}
+            onReport={(p) => setReportPost(p)}
           />
         ))}
       </div>
@@ -230,6 +233,13 @@ export const Community: React.FC<CommunityProps> = ({ onNavigate }) => {
         isOpen={showFindMakers}
         onClose={() => setShowFindMakers(false)}
         onNavigateToProfile={(userId) => onNavigate('profile', { userId })}
+      />
+
+      {/* Report Post Modal */}
+      <ReportPostModal
+        isOpen={Boolean(reportPost)}
+        onClose={() => setReportPost(null)}
+        post={reportPost}
       />
     </div>
   );

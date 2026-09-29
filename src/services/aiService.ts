@@ -166,12 +166,40 @@ export const aiService = {
     );
 
     // Step 2: Search in-app posts + YouTube in parallel
-    const [matchedPosts, youtubeResults] = await Promise.all([
-      postService.searchPosts(identification.label),
+    const [allPosts, youtubeResults] = await Promise.all([
+      postService.getPosts(), // Fetch all posts to rank them locally
       searchYouTube(identification.materialCategory),
     ]);
 
-    const matchedProjects = matchedPosts.map(postToProject);
+    // Rank posts by matching category or tags
+    const scoredPosts = allPosts.map(post => {
+      let score = 0;
+      const lowerCat = (identification.materialCategory || '').toLowerCase();
+      const lowerTags = (identification.suggestedTags || []).map(t => (t || '').toLowerCase());
+      const pTags = (post.tags || []).map(t => (t || '').toLowerCase());
+      const pTitle = (post.title || '').toLowerCase();
+      const pDesc = (post.description || '').toLowerCase();
+      
+      // Match category
+      if (lowerCat && (pTags.includes(lowerCat) || pTitle.includes(lowerCat) || pDesc.includes(lowerCat))) {
+        score += 10;
+      }
+      
+      // Match tags
+      for (const tag of lowerTags) {
+        if (tag && (pTags.includes(tag) || pTitle.includes(tag) || pDesc.includes(tag))) {
+          score += 2;
+        }
+      }
+      
+      return { post, score };
+    });
+
+    // Sort by score (highest first)
+    scoredPosts.sort((a, b) => b.score - a.score);
+    
+    // Take the top 8 posts (or all if less than 8)
+    const matchedProjects = scoredPosts.slice(0, 8).map(sp => postToProject(sp.post));
 
     return {
       label: identification.label,

@@ -5,6 +5,7 @@ import { MyProjectsGrid } from '../components/profile/MyProjectsGrid';
 import { AchievementsBadges } from '../components/profile/AchievementsBadges';
 import { MaterialsIHaveWidget } from '../components/profile/MaterialsIHaveWidget';
 import { CredentialsSection } from '../components/profile/CredentialsSection';
+import { CopyrightStrikeModal } from '../components/profile/CopyrightStrikeModal';
 import { useUser } from '../context/UserContext';
 import { profileService } from '../services/profileService';
 import { postService, storageService } from '../services/postService';
@@ -22,6 +23,7 @@ export const Profile: React.FC<ProfilePageProps> = ({ onNavigate, userId }) => {
   const [profileUser, setProfileUser] = useState<User | null>(null);
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCopyrightStrike, setShowCopyrightStrike] = useState(false);
 
   // Accessible tab navigation within Profile
   const [activeProfileTab, setActiveProfileTab] = useState<
@@ -227,6 +229,16 @@ export const Profile: React.FC<ProfilePageProps> = ({ onNavigate, userId }) => {
             <span>My Stash ({currentUser?.materialsIHave?.length || 0})</span>
           </button>
         )}
+        
+        {isOwnProfile && (
+          <button
+            type="button"
+            onClick={() => setShowCopyrightStrike(true)}
+            className="px-4 py-2 rounded-xl font-black text-xs sm:text-sm flex items-center gap-2 transition-all cursor-pointer bg-[#FFD93D] text-black border-[2px] border-black shadow-[2px_2px_0px_#000] hover:-translate-y-0.5 active:translate-y-0.5 ml-auto"
+          >
+            File Strike
+          </button>
+        )}
       </div>
 
       {/* Tab 1: My Projects & Implemented Work */}
@@ -282,6 +294,12 @@ export const Profile: React.FC<ProfilePageProps> = ({ onNavigate, userId }) => {
           />
         </div>
       )}
+
+      {/* Copyright Strike Modal */}
+      <CopyrightStrikeModal
+        isOpen={showCopyrightStrike}
+        onClose={() => setShowCopyrightStrike(false)}
+      />
     </div>
   );
 };

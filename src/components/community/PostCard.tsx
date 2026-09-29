@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Post } from '../../types/post';
-import { Heart, MessageCircle, Eye, CheckCircle2, Clock, DollarSign, AlertCircle, Share2, Layers, Trash2 } from 'lucide-react';
+import { Heart, MessageCircle, Eye, CheckCircle2, Clock, DollarSign, AlertCircle, Share2, Layers, Trash2, Flag } from 'lucide-react';
 import { formatCount, getDifficultyColor } from '../../utils/formatters';
 import { Button } from '../common/Button';
 import confetti from 'canvas-confetti';
@@ -11,6 +11,7 @@ interface PostCardProps {
   onOpenComments: (post: Post) => void;
   onTryIt: (post: Post) => void;
   onDelete?: (post: Post) => void;
+  onReport?: (post: Post) => void;
   onNavigate?: (page: string, params?: any) => void;
 }
 
@@ -20,6 +21,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   onOpenComments,
   onTryIt,
   onDelete,
+  onReport,
   onNavigate,
 }) => {
   const [likes, setLikes] = useState(post.likes);
@@ -82,6 +84,18 @@ export const PostCard: React.FC<PostCardProps> = ({
         </div>
 
         <div className="flex items-center gap-3">
+          {onReport && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onReport(post);
+              }}
+              className="p-1.5 bg-white border-[2px] border-black rounded-lg text-black shadow-[2px_2px_0px_#000] hover:bg-black/5 active:translate-y-0.5 active:shadow-none transition-all"
+              title="Report Post"
+            >
+              <Flag className="w-4 h-4" />
+            </button>
+          )}
           {onDelete && (
             <button
               onClick={(e) => {
