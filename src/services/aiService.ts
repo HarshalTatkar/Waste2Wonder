@@ -176,7 +176,7 @@ export const aiService = {
       let score = 0;
       const lowerCat = (identification.materialCategory || '').toLowerCase();
       const lowerTags = (identification.suggestedTags || []).map(t => (t || '').toLowerCase());
-      const pTags = (post.tags || []).map(t => (t || '').toLowerCase());
+      const pTags = (post.materials || []).map(t => (t || '').toLowerCase());
       const pTitle = (post.title || '').toLowerCase();
       const pDesc = (post.description || '').toLowerCase();
       

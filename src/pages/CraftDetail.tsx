@@ -9,6 +9,7 @@ import { GeneratedImageGallery } from '../components/craft-detail/GeneratedImage
 import { EngagementBar } from '../components/craft-detail/EngagementBar';
 import { UploadResultModal } from '../components/craft-detail/UploadResultModal';
 import { CommentSection } from '../components/community/CommentSection';
+import { Button } from '../components/common/Button';
 import { ReportPostModal } from '../components/community/ReportPostModal';
 import { useUser } from '../context/UserContext';
 import { postService } from '../services/postService';
